@@ -66,3 +66,6 @@ export {
   validateCertification,
   type CertificationEntry,
 } from "./cert-upload-field";
+
+// Safety modules card with live counts for project dashboard
+export { SafetyModulesCard } from "./safety-modules-card";

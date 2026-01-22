@@ -285,7 +285,7 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 ### Phase 5: Core Pages [Effort: L] ✅ COMPLETE (tag 0.0.9)
 
 **Dashboard Enhancements**
-- [ ] **PAGE-007**: Update dashboard with safety stats (pending SWMS, expiring permits, open incidents)
+- [~] **PAGE-007**: Update dashboard with safety stats (pending SWMS, expiring permits, open incidents) - PARTIAL (project dashboard has live stats via `safety-modules-card.tsx`, org dashboard still hardcoded)
 
 **SWMS Module**
 - [x] **PAGE-008**: SWMS templates list (`/orgs/[orgId]/swms-templates`) ✅
@@ -302,8 +302,8 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 
 **Incidents Module**
 - [x] **PAGE-017**: Incident reports list (`/orgs/[orgId]/projects/[projectId]/incidents`) ✅
-- [ ] **PAGE-018**: Incident report form
-- [ ] **PAGE-019**: Incident detail view with investigation panel
+- [x] **PAGE-018**: Incident report form ✅
+- [x] **PAGE-019**: Incident detail view with investigation panel ✅
 
 **Inductions Module**
 - [x] **PAGE-020**: Induction types list (`/orgs/[orgId]/induction-types`) ✅
@@ -715,6 +715,35 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 - `npm run lint` - 0 errors (4 img warnings for base64 content, acceptable)
 - `npm run build` - successful
 - Chrome E2E tested both flows with demo data
+
+### Post-Phase 6 Implementation Notes (2026-01-22)
+
+**Incident Form (PAGE-018)**:
+- Created `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/incidents/new/page.tsx`
+- Created `/src/components/ui/textarea.tsx` (ShadCN textarea component)
+- Multi-step wizard: description → details → photos → review
+- Conditional injury details for injury type incidents
+- Dynamic witness management (add/remove witnesses)
+- Photo placeholder (storage not configured)
+
+**Incident Detail View (PAGE-019)**:
+- Created `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/incidents/[incidentId]/page.tsx`
+- Shows incident overview with severity and status
+- Investigation panel: assign investigator, add notes, root cause, corrective actions
+- Lifecycle actions: assign investigator, update investigation, close, reopen
+- Sidebar with people involved, witnesses, timeline
+
+**Safety Stats Card (PAGE-007 partial)**:
+- Created `/src/components/safety/safety-modules-card.tsx` - client component for project dashboard
+- Integrated into project detail page - shows live counts for SWMS (approved), Permits (active), Incidents (open)
+- Highlights incidents card if there are open incidents
+- Org dashboard still uses hardcoded stats (deferred)
+
+**Patterns Used**:
+1. **Multi-step form wizard**: useState for step tracking, conditional rendering per step, "Continue"/"Back" navigation
+2. **Detail page layout**: Two-column responsive (main content + sidebar), Card-based sections
+3. **Investigation panel pattern**: Collapsible form sections, textarea for notes, modal dialogs for actions
+4. **Dynamic list management**: Add/remove items with array state, map with index keys
 
 ### Deferred to R3+
 - plantInductionCompletions table (needs assets module)
