@@ -1,10 +1,22 @@
-0a. Study `specs/*` with up to 250 parallel Sonnet subagents to learn the application specifications.
-0b. Study @IMPLEMENTATION_PLAN.md (if present) to understand the plan so far.
-0c. Study `src/lib/*` with up to 250 parallel Sonnet subagents to understand shared utilities & components.
-0d. For reference, the application source code is in `src/*`.
+0a. Study `ralph-wiggum/specs/*` with up to 250 parallel Sonnet subagents to learn the application specifications.
+0b. Study @ralph-wiggum/files/IMPLEMENTATION_PLAN.md (if present) to understand the plan so far.
+0c. Study `convex/*` with up to 250 parallel Sonnet subagents to understand the database schema and backend functions.
+0d. Study `src/lib/*` and `src/components/ui/*` with up to 250 parallel Sonnet subagents to understand shared utilities & UI primitives.
+0e. For reference, the application source code is in `src/*` (frontend) and `convex/*` (backend).
 
-1. Study @IMPLEMENTATION_PLAN.md (if present; it may be incorrect) and use up to 500 Sonnet subagents to study existing source code in `src/*` and compare it against `specs/*`. Use an Opus subagent to analyze findings, prioritize tasks, and create/update @IMPLEMENTATION_PLAN.md as a bullet point list sorted in priority of items yet to be implemented. Ultrathink. Consider searching for TODO, minimal implementations, placeholders, skipped/flaky tests, and inconsistent patterns. Study @IMPLEMENTATION_PLAN.md to determine starting point for research and keep it up to date with items considered complete/incomplete using subagents.
+1. Study @ralph-wiggum/files/IMPLEMENTATION_PLAN.md (if present; it may be incorrect) and use up to 500 Sonnet subagents to study existing source code in `src/*` and `convex/*` and compare it against `ralph-wiggum/specs/*`. Use an Opus subagent to analyze findings, prioritize tasks, and create/update @ralph-wiggum/files/IMPLEMENTATION_PLAN.md as a bullet point list sorted in priority of items yet to be implemented. Ultrathink. Consider searching for TODO, minimal implementations, placeholders, skipped/flaky tests, and inconsistent patterns. Study @ralph-wiggum/files/IMPLEMENTATION_PLAN.md to determine starting point for research and keep it up to date with items considered complete/incomplete using subagents.
 
-IMPORTANT: Plan only. Do NOT implement anything. Do NOT assume functionality is missing; confirm with code search first. Treat `src/lib` as the project's standard library for shared utilities and components. Prefer consolidated, idiomatic implementations there over ad-hoc copies.
+IMPORTANT: Plan only. Do NOT implement anything. Do NOT assume functionality is missing; confirm with code search first. Treat `src/lib` and `src/components/ui` as the project's standard library for shared utilities and components. Prefer consolidated, idiomatic implementations there over ad-hoc copies.
 
-ULTIMATE GOAL: We want to achieve [project-specific goal]. Consider missing elements and plan accordingly. If an element is missing, search first to confirm it doesn't exist, then if needed author the specification at specs/FILENAME.md. If you create a new element then document the plan to implement it in @IMPLEMENTATION_PLAN.md using a subagent.
+ULTIMATE GOAL: Build a complete construction site management platform with:
+- Foundation: orgs, projects, workers, trades, workPackages (multi-tenant, project-scoped)
+- Safety: SWMS, permits, incidents, inductions, compliance (SDS, certs, insurance)
+- Quality: checklists (16 field types), defects, action items
+- Assets: registers, allocations, prestarts, service logs
+- Site Ops: diaries, toolbox meetings, schedule, sign-on
+- Documents: files, drawings, AI chunking + semantic search
+- Communications: notifications, messages, alerts
+- Chief AI: MCP tools, skills system, 3 autonomy levels
+- Mobile: 51 screens, 8 public QR flows
+
+Consider missing elements and plan accordingly. If an element is missing, search first to confirm it doesn't exist, then if needed author the specification at ralph-wiggum/specs/FILENAME.md. If you create a new element then document the plan to implement it in @ralph-wiggum/files/IMPLEMENTATION_PLAN.md using a subagent.
