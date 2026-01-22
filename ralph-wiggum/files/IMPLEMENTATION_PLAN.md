@@ -258,17 +258,17 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 - [x] **API-022**: `inductionCompletions.ts` - listByWorker, listByProject, listByStatus, listPendingReview, get, getWithDetails, create, start, updateProgress, submit, approve, returnForRevision, expire, checkWorkerInduction
 - [x] **API-023**: `inductionPublic.ts` - getByShareCode (no auth, enriched with certifications), submitWizard, getCompletionStatus
 
-### Phase 3: Hooks Layer [Effort: S]
+### Phase 3: Hooks Layer [Effort: S] ✅ COMPLETE (tag 0.0.7)
 
-- [ ] **HOOK-005**: `use-swms-templates.ts`
-- [ ] **HOOK-006**: `use-swms-documents.ts`
-- [ ] **HOOK-007**: `use-swms-signatures.ts`
-- [ ] **HOOK-008**: `use-permit-types.ts`
-- [ ] **HOOK-009**: `use-permit-instances.ts`
-- [ ] **HOOK-010**: `use-incident-reports.ts`
-- [ ] **HOOK-011**: `use-induction-types.ts`
-- [ ] **HOOK-012**: `use-induction-completions.ts`
-- [ ] **HOOK-013**: `use-certifications.ts`
+- [x] **HOOK-005**: `use-swms-templates.ts`
+- [x] **HOOK-006**: `use-swms-documents.ts`
+- [x] **HOOK-007**: `use-swms-signatures.ts` (includes swmsAssignments hooks)
+- [x] **HOOK-008**: `use-permit-types.ts`
+- [x] **HOOK-009**: `use-permit-instances.ts`
+- [x] **HOOK-010**: `use-incident-reports.ts`
+- [x] **HOOK-011**: `use-induction-types.ts`
+- [x] **HOOK-012**: `use-induction-completions.ts`
+- [x] **HOOK-013**: `use-certifications.ts` (certificationTypes + competencyRecords)
 
 ### Phase 4: Shared Components [Effort: M]
 
@@ -337,7 +337,7 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 |-------|-------|--------|--------|
 | 1. Schema | 15 | M | ✅ Complete (0.0.4) |
 | 2. Backend | 17 | L | ✅ Complete (0.0.5, 0.0.6) |
-| 3. Hooks | 9 | S | Pending |
+| 3. Hooks | 9 | S | ✅ Complete (0.0.7) |
 | 4. Shared Components | 8 | M | Pending |
 | 5. Core Pages | 16 | L | Pending |
 | 6. Public Flows | 7 | M | Pending |
@@ -564,6 +564,32 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 6. **Share codes**: 12-char alphanumeric for public access routes
 7. **Signature hashing**: Base64 of `signatureData:timestamp` for tamper detection
 8. **Audit logs**: Append-only arrays with actorId, action, timestamp, optional comment
+
+**Validation Passed**:
+- `npx tsc --noEmit` - 0 errors
+- `npm run lint` - 0 warnings/errors
+- `npm run build` - successful
+
+### Phase 3 Implementation Notes (2026-01-22)
+
+**Files Created (9 hook files)**:
+- `src/hooks/use-certifications.ts` - certificationTypes + competencyRecords hooks
+- `src/hooks/use-swms-templates.ts` - SWMS template management hooks
+- `src/hooks/use-swms-documents.ts` - SWMS document lifecycle hooks
+- `src/hooks/use-swms-signatures.ts` - signatures + assignments hooks combined
+- `src/hooks/use-permit-types.ts` - permit type management hooks
+- `src/hooks/use-permit-instances.ts` - permit instance 9-state lifecycle hooks
+- `src/hooks/use-incident-reports.ts` - incident reporting + investigation hooks
+- `src/hooks/use-induction-types.ts` - induction type management hooks
+- `src/hooks/use-induction-completions.ts` - induction completion 6-state lifecycle hooks
+
+**Patterns Established**:
+1. **Demo data fallback**: DEMO_* arrays filtered by org/project for offline operation
+2. **Convex availability check**: `useConvexAvailable()` + `"skip"` param for conditional queries
+3. **Actions wrapper**: Mutation functions with no-op fallback returning stub IDs
+4. **Derived hooks**: Reuse main hook with client-side filtering (e.g., useWorkerCompetencyRecords)
+5. **Loading state**: `convexAvailable && query === undefined`
+6. **Type exports**: `*Data`, `*WithDetails`, `Create*Input`, `Update*Input` patterns
 
 **Validation Passed**:
 - `npx tsc --noEmit` - 0 errors
