@@ -3,9 +3,10 @@
 ## Current Release: R2 - Safety Core
 
 ### Status
-- **Phase**: Planning (Analysis Complete)
+- **Phase**: Phase 2 Backend [COMPLETE]
 - **Last Updated**: 2026-01-22
 - **Depends On**: R1 Foundation [COMPLETE] (tag 0.0.3)
+- **Tags**: 0.0.4 (Phase 1 Schema), 0.0.5 (SWMS+Cert APIs), 0.0.6 (All Backend APIs)
 - **Spec Sources**: safety-swms.md, safety-permits.md, safety-incidents.md, safety-inductions.md, safety-compliance.md, _reference/schema.md
 
 ---
@@ -201,61 +202,61 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 
 ## Prioritized Tasks
 
-### Phase 1: Schema (15 tables) [Effort: M]
+### Phase 1: Schema (15 tables) [Effort: M] ✅ COMPLETE (tag 0.0.4)
 
 **Shared Safety Tables**
-- [ ] **DB-007**: `certificationTypes` - org-level cert definitions (license|ticket|training|medical|other), validityDays, expiryWarningDays
-- [ ] **DB-008**: `competencyRecords` - worker certifications with verification workflow, photo storage
+- [x] **DB-007**: `certificationTypes` - org-level cert definitions (license|ticket|training|medical|other), validityDays, expiryWarningDays
+- [x] **DB-008**: `competencyRecords` - worker certifications with verification workflow, photo storage
 
 **SWMS Tables**
-- [ ] **DB-009**: `swmsTemplates` - org-level templates, 13 section types, version tracking
-- [ ] **DB-010**: `swmsDocuments` - project-level instances, status (draft|pending_review|approved|expired|archived), shareCode
-- [ ] **DB-011**: `swmsSignatures` - internal (workerId) + external (workerName, workerCompany), signatureData (base64 PNG)
-- [ ] **DB-012**: `swmsAssignments` - worker-SWMS junction, acknowledgedAt tracking
+- [x] **DB-009**: `swmsTemplates` - org-level templates, 13 section types, version tracking
+- [x] **DB-010**: `swmsDocuments` - project-level instances, status (draft|pending_review|approved|expired|archived), shareCode
+- [x] **DB-011**: `swmsSignatures` - internal (workerId) + external (workerName, workerCompany), signatureData (base64 PNG)
+- [x] **DB-012**: `swmsAssignments` - worker-SWMS junction, acknowledgedAt tracking
 
 **Permit Tables**
-- [ ] **DB-013**: `permitTypes` - org-level templates, requiredFields, defaultValidityHours, riskLevel
-- [ ] **DB-014**: `permitTypeAssignments` - enable types per project, defaultApproverId
-- [ ] **DB-015**: `permitInstances` - 9-state lifecycle, formData, approval signatures, validFrom/validTo
+- [x] **DB-013**: `permitTypes` - org-level templates, requiredFields, defaultValidityHours, riskLevel
+- [x] **DB-014**: `permitTypeAssignments` - enable types per project, defaultApproverId
+- [x] **DB-015**: `permitInstances` - 9-state lifecycle, formData, approval signatures, validFrom/validTo
 
 **Incident Tables**
-- [ ] **DB-016**: `incidentTemplates` - org-level investigation templates
-- [ ] **DB-017**: `incidentTemplateAssignments` - enable templates per project
-- [ ] **DB-018**: `incidentReports` - type, severity, status, involvedWorkers, witnesses, correctiveActions
+- [x] **DB-016**: `incidentTemplates` - org-level investigation templates
+- [x] **DB-017**: `incidentTemplateAssignments` - enable templates per project
+- [x] **DB-018**: `incidentReports` - type, severity, status, involvedWorkers, witnesses, correctiveActions
 
 **Induction Tables**
-- [ ] **DB-019**: `inductionTypes` - scope (company|site|task|plant), content blocks (info|video|acknowledgement|upload), validityDays
-- [ ] **DB-020**: `inductionInvites` - shareCode, status (pending|awaiting_review|completed), off-site workflow
-- [ ] **DB-021**: `inductionCompletions` - 6-state lifecycle, responses, signature (base64, hash), auditLog
+- [x] **DB-019**: `inductionTypes` - scope (company|site|task|plant), content blocks (info|video|acknowledgement|upload), validityDays
+- [x] **DB-020**: `inductionInvites` - shareCode, status (pending|awaiting_review|completed), off-site workflow
+- [x] **DB-021**: `inductionCompletions` - 6-state lifecycle, responses, signature (base64, hash), auditLog
 
-### Phase 2: Backend Functions [Effort: L]
+### Phase 2: Backend Functions [Effort: L] ✅ COMPLETE (tags 0.0.5, 0.0.6)
 
-**Certification APIs**
-- [ ] **API-007**: `certificationTypes.ts` - list, get, create, update
-- [ ] **API-008**: `competencyRecords.ts` - listByWorker, create, verify, reject, expireCheck
+**Certification APIs** ✅ (tag 0.0.5)
+- [x] **API-007**: `certificationTypes.ts` - listByOrg, listActive, get, create, update, deactivate
+- [x] **API-008**: `competencyRecords.ts` - listByWorker, listByOrg, get, create, verify, reject, expire, checkValid
 
-**SWMS APIs**
-- [ ] **API-009**: `swmsTemplates.ts` - listByOrg, get, create, publish, clone
-- [ ] **API-010**: `swmsDocuments.ts` - listByProject, get, create, submit, approve, generateShareCode
-- [ ] **API-011**: `swmsSignatures.ts` - listByDocument, createInternal, createExternal
-- [ ] **API-012**: `swmsAssignments.ts` - listByDocument, listByWorker, assign, acknowledge
-- [ ] **API-013**: `swmsPublic.ts` - getByShareCode (no auth), signExternal
+**SWMS APIs** ✅ (tag 0.0.5)
+- [x] **API-009**: `swmsTemplates.ts` - listByOrg, listActive, get, create, update, publish, archive, clone
+- [x] **API-010**: `swmsDocuments.ts` - listByProject, listByStatus, get, getWithSignatures, create, submit, approve, archive, expire
+- [x] **API-011**: `swmsSignatures.ts` - listByDocument, createInternal, createExternal (no update - immutable)
+- [x] **API-012**: `swmsAssignments.ts` - listByDocument, listByWorker, listPendingByWorker, assign, batchAssign, acknowledge
+- [x] **API-013**: `swmsPublic.ts` - getByShareCode (no auth), signExternal, getSignatureCount
 
-**Permit APIs**
-- [ ] **API-014**: `permitTypes.ts` - listByOrg, get, create, update
-- [ ] **API-015**: `permitTypeAssignments.ts` - listByProject, enable, disable
-- [ ] **API-016**: `permitInstances.ts` - listByProject, get, create, submit, approve, reject, activate, suspend, close, cancel, expire
+**Permit APIs** ✅ (tag 0.0.6)
+- [x] **API-014**: `permitTypes.ts` - listByOrg, listActive, get, create, update, deactivate
+- [x] **API-015**: `permitTypeAssignments.ts` - listByProject, enable, disable, setDefaultApprover
+- [x] **API-016**: `permitInstances.ts` - listByProject, listByStatus, listActive, listByApplicant, get, getWithDetails, create, submit, approve, reject, activate, suspend, resume, close, cancel, expire, listExpiring, listExpired
 
-**Incident APIs**
-- [ ] **API-017**: `incidentTemplates.ts` - listByOrg, get, create, update
-- [ ] **API-018**: `incidentTemplateAssignments.ts` - listByProject, enable, disable
-- [ ] **API-019**: `incidentReports.ts` - listByProject, get, create, assignInvestigator, updateInvestigation, close
+**Incident APIs** ✅ (tag 0.0.6)
+- [x] **API-017**: `incidentTemplates.ts` - listByOrg, listActive, get, create, update, publish, archive, clone
+- [x] **API-018**: `incidentTemplateAssignments.ts` - listByProject, enable, disable, setDefault
+- [x] **API-019**: `incidentReports.ts` - listByProject, listByStatus, get, getWithDetails, create, assignInvestigator, updateInvestigation, addCorrectiveAction, close, reopen
 
-**Induction APIs**
-- [ ] **API-020**: `inductionTypes.ts` - listByOrg, listByProject, get, create, publish
-- [ ] **API-021**: `inductionInvites.ts` - listByProject, get, create, deactivate
-- [ ] **API-022**: `inductionCompletions.ts` - listByWorker, listByProject, create, start, submit, approve, return
-- [ ] **API-023**: `inductionPublic.ts` - getByShareCode (no auth), submitWizard
+**Induction APIs** ✅ (tag 0.0.6)
+- [x] **API-020**: `inductionTypes.ts` - listByOrg, listActive, listByScope, listByProject, get, getWithCertifications, create, update, deactivate, clone
+- [x] **API-021**: `inductionInvites.ts` - listByProject, listByStatus, get, getByShareCode, getWithCompletion, create, deactivate, markAwaitingReview, markCompleted
+- [x] **API-022**: `inductionCompletions.ts` - listByWorker, listByProject, listByStatus, listPendingReview, get, getWithDetails, create, start, updateProgress, submit, approve, returnForRevision, expire, checkWorkerInduction
+- [x] **API-023**: `inductionPublic.ts` - getByShareCode (no auth, enriched with certifications), submitWizard, getCompletionStatus
 
 ### Phase 3: Hooks Layer [Effort: S]
 
@@ -334,8 +335,8 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 
 | Phase | Tasks | Effort | Status |
 |-------|-------|--------|--------|
-| 1. Schema | 15 | M | Pending |
-| 2. Backend | 17 | L | Pending |
+| 1. Schema | 15 | M | ✅ Complete (0.0.4) |
+| 2. Backend | 17 | L | ✅ Complete (0.0.5, 0.0.6) |
 | 3. Hooks | 9 | S | Pending |
 | 4. Shared Components | 8 | M | Pending |
 | 5. Core Pages | 16 | L | Pending |
@@ -532,6 +533,42 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 | Incident linked IDs arrays | Remove, use polymorphic from defects/actions | safety-incidents.md Schema Notes |
 | Induction `content` vs `steps` | Use `steps` array with 6 types | _reference/schema.md |
 | Timestamp ISO vs number | Keep v.number() for R2 consistency | Current R1 pattern |
+
+### Phase 2 Implementation Notes (2026-01-22)
+
+**Files Created (17 API files)**:
+- `convex/certificationTypes.ts` - 6 functions
+- `convex/competencyRecords.ts` - 8 functions
+- `convex/swmsTemplates.ts` - 8 functions
+- `convex/swmsDocuments.ts` - 9 functions
+- `convex/swmsSignatures.ts` - 3 functions (no update - immutable)
+- `convex/swmsAssignments.ts` - 6 functions
+- `convex/swmsPublic.ts` - 3 functions (no auth)
+- `convex/permitTypes.ts` - 6 functions
+- `convex/permitTypeAssignments.ts` - 4 functions
+- `convex/permitInstances.ts` - 17 functions (full 9-state lifecycle)
+- `convex/incidentTemplates.ts` - 8 functions
+- `convex/incidentTemplateAssignments.ts` - 4 functions
+- `convex/incidentReports.ts` - 10 functions
+- `convex/inductionTypes.ts` - 10 functions
+- `convex/inductionInvites.ts` - 8 functions
+- `convex/inductionCompletions.ts` - 12 functions
+- `convex/inductionPublic.ts` - 3 functions (no auth, enriched data)
+
+**Patterns Established**:
+1. **Index queries**: Use single-field index + `.filter()` for composite conditions (Convex doesn't support chained `.eq()`)
+2. **Optional fields in insert**: Use conditional assignment `if (x !== undefined) data.x = x;` instead of spreading
+3. **Id type access**: Use `as Id<"tableName">` for document field access
+4. **Value type guards**: Use `typeof x === "number"` before numeric comparisons
+5. **Auto-numbering**: Per-project sequential (SWMS-001, PERMIT-001, INC-001)
+6. **Share codes**: 12-char alphanumeric for public access routes
+7. **Signature hashing**: Base64 of `signatureData:timestamp` for tamper detection
+8. **Audit logs**: Append-only arrays with actorId, action, timestamp, optional comment
+
+**Validation Passed**:
+- `npx tsc --noEmit` - 0 errors
+- `npm run lint` - 0 warnings/errors
+- `npm run build` - successful
 
 ### Deferred to R3+
 - plantInductionCompletions table (needs assets module)
