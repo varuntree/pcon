@@ -69,11 +69,11 @@
 - [x] PAGE-031: Checklist template editor (16 field types, sections, conditional logic) (L) ✓
 - [x] PAGE-032: Project checklists list `/orgs/[orgId]/projects/[projectId]/checklists` (S) ✓
 - [x] PAGE-033: Checklist instance conductor (dynamic fields, progress tracking) (L) ✓
-- [ ] PAGE-034: Defects list `/orgs/[orgId]/projects/[projectId]/defects` (S)
-- [ ] PAGE-035: Defect detail view (photos, comments, lifecycle actions) (M)
-- [ ] PAGE-036: Defect creation form (location, photos, markup) (M)
-- [ ] PAGE-037: Action items list `/orgs/[orgId]/projects/[projectId]/actions` (S)
-- [ ] PAGE-038: Action item detail view (M)
+- [x] PAGE-034: Defects list `/orgs/[orgId]/projects/[projectId]/defects` (S) ✓
+- [x] PAGE-035: Defect detail view (photos, comments, lifecycle actions) (M) ✓
+- [x] PAGE-036: Defect creation form (location, photos, markup) (M) ✓
+- [x] PAGE-037: Action items list `/orgs/[orgId]/projects/[projectId]/actions` (S) ✓
+- [x] PAGE-038: Action item detail view (M) ✓
 
 **Asset Module**
 - [ ] PAGE-039: Asset registers list `/orgs/[orgId]/asset-registers` (S)
@@ -637,6 +637,7 @@
 
 ## Version History
 
+- **v3.5** (2026-01-22): PAGE-034/035/036/037/038 complete (defects + action items pages)
 - **v3.4** (2026-01-22): PAGE-032/033 complete (project checklists list + conductor pages)
 - **v3.3** (2026-01-22): PAGE-030/031 complete w/ checklist section editor component
 - **v3.2** (2026-01-22): R3 Backend APIs complete (12 APIs)
