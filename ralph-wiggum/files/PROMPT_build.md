@@ -1,9 +1,9 @@
-0a. Study `ralph-wiggum/specs/*` with up to 500 parallel Sonnet subagents to learn the application specifications.
+0a. Study `ralph-wiggum/specs/*` with up to 50 parallel Sonnet subagents to learn the application specifications.
 0b. Study @ralph-wiggum/files/IMPLEMENTATION_PLAN.md.
 0c. Study @ralph-wiggum/files/AGENTS.md for build commands, validation commands, and Chrome E2E testing patterns.
 0d. For reference, the application source code is in `src/*` (frontend) and `convex/*` (backend).
 
-1. Your task is to implement functionality per the specifications using parallel subagents. Follow @ralph-wiggum/files/IMPLEMENTATION_PLAN.md and choose the most important item to address. Before making changes, search the codebase (don't assume not implemented) using Sonnet subagents. You may use up to 500 parallel Sonnet subagents for searches/reads and only 1 Sonnet subagent for build/tests. Use Opus subagents when complex reasoning is needed (debugging, architectural decisions).
+1. Your task is to implement functionality per the specifications using parallel subagents. Follow @ralph-wiggum/files/IMPLEMENTATION_PLAN.md and choose the most important item to address. Before making changes, search the codebase (don't assume not implemented) using Sonnet subagents. You may use up to 50 parallel Sonnet subagents for searches/reads and only 1 Sonnet subagent for build/tests. Use Opus subagents when complex reasoning is needed (debugging, architectural decisions).
 
 2. After implementing functionality or resolving problems, run validation:
    - Run `npx tsc --noEmit` for TypeScript checks

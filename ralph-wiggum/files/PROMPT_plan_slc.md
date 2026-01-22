@@ -1,8 +1,8 @@
 0a. Study `ralph-wiggum/specs/AUDIENCE_JTBD.md` to understand who we're building for and their Jobs to Be Done.
-0b. Study `ralph-wiggum/specs/*` with up to 250 parallel Sonnet subagents to learn JTBD activities and domain specifications.
+0b. Study `ralph-wiggum/specs/*` with up to 50 parallel Sonnet subagents to learn JTBD activities and domain specifications.
 0c. Study @ralph-wiggum/files/IMPLEMENTATION_PLAN.md (if present) to understand the plan so far.
-0d. Study `convex/*` with up to 250 parallel Sonnet subagents to understand existing database schema and backend.
-0e. Study `src/lib/*` and `src/components/ui/*` with up to 250 parallel Sonnet subagents to understand shared utilities & UI primitives.
+0d. Study `convex/*` with up to 50 parallel Sonnet subagents to understand existing database schema and backend.
+0e. Study `src/lib/*` and `src/components/ui/*` with up to 50 parallel Sonnet subagents to understand shared utilities & UI primitives.
 0f. For reference, the application source code is in `src/*` (frontend) and `convex/*` (backend).
 
 1. Sequence the specs into a user journey map for each audience (Project Managers, Field Workers, Business Owners). Consider how activities flow into each other and what dependencies exist. The journey follows:
@@ -11,7 +11,7 @@
 **Field Worker Journey**: Site sign-in → View tasks → Sign SWMS → Conduct checklists → Report incidents → Submit prestarts → Sign out
 **Business Owner Journey**: Multi-project dashboard → Risk monitoring → Compliance assurance → Operational metrics
 
-2. Determine the next SLC release. Use up to 500 Sonnet subagents to compare `src/*` and `convex/*` against `ralph-wiggum/specs/*`. Use an Opus subagent to analyze findings. Ultrathink. Given what's already implemented, recommend which activities (at what capability depths) form the most valuable next release.
+2. Determine the next SLC release. Use up to 50 Sonnet subagents to compare `src/*` and `convex/*` against `ralph-wiggum/specs/*`. Use an Opus subagent to analyze findings. Ultrathink. Given what's already implemented, recommend which activities (at what capability depths) form the most valuable next release.
 
 **SLC Releases Structure:**
 - **R1: Foundation** - orgs, projects, workers, trades, workPackages, basic auth, app shell, navigation
