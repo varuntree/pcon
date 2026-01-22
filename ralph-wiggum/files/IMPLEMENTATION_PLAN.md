@@ -52,14 +52,15 @@
 - [ ] `prestartSubmissions.ts` - listByAsset, listByProject, get, submit, evaluate (M)
 
 ### Hooks Layer
-- [ ] `use-checklist-templates.ts` (S)
-- [ ] `use-checklist-instances.ts` (S)
-- [ ] `use-defects.ts` (S)
-- [ ] `use-action-items.ts` (S)
-- [ ] `use-asset-registers.ts` (S)
-- [ ] `use-assets.ts` (S)
-- [ ] `use-asset-allocations.ts` (S)
-- [ ] `use-prestart-submissions.ts` (S)
+- [x] `use-checklist-templates.ts` (S) ✓
+- [x] `use-checklist-instances.ts` (S) ✓
+- [x] `use-defects.ts` (S) ✓
+- [x] `use-defect-photos.ts` (S) ✓
+- [x] `use-action-items.ts` (S) ✓
+- [x] `use-asset-registers.ts` (S) ✓
+- [x] `use-assets.ts` (S) ✓
+- [x] `use-asset-allocations.ts` (S) ✓
+- [x] `use-prestart-submissions.ts` (S) ✓
 
 ### Pages
 
@@ -636,6 +637,7 @@
 
 ## Version History
 
+- **v3.1** (2026-01-22): R3 Hooks layer complete (9 hooks)
 - **v3.0** (2026-01-22): Added R3-R7 implementation plan with full task breakdown
 - **v2.0** (2026-01-22): R2 Safety Core complete (tag 0.0.10)
 - **v1.0** (2026-01-XX): Initial R2 plan

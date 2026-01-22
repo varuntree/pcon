@@ -41,12 +41,11 @@ export const listByOrgType = query({
     assetType: assetType,
   },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const registers = await ctx.db
       .query("assetRegisters")
-      .withIndex("by_org_type", (q) =>
-        q.eq("orgId", args.orgId).eq("assetType", args.assetType)
-      )
+      .withIndex("by_org", (q) => q.eq("orgId", args.orgId))
       .collect();
+    return registers.filter((r) => r.assetType === args.assetType);
   },
 });
 

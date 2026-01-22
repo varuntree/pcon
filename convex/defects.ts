@@ -51,12 +51,11 @@ export const listByStatus = query({
     status: defectStatus,
   },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const defects = await ctx.db
       .query("defects")
-      .withIndex("by_project_status", (q) =>
-        q.eq("projectId", args.projectId).eq("status", args.status)
-      )
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
       .collect();
+    return defects.filter((d) => d.status === args.status);
   },
 });
 
@@ -81,15 +80,13 @@ export const listByAssignee = query({
     if (args.assignedTo) {
       return await ctx.db
         .query("defects")
-        .withIndex("by_assignee", (q) => q.eq("assignedTo", args.assignedTo))
+        .filter((q) => q.eq(q.field("assignedTo"), args.assignedTo))
         .collect();
     }
     if (args.assignedWorkerId) {
       return await ctx.db
         .query("defects")
-        .withIndex("by_worker_assignee", (q) =>
-          q.eq("assignedWorkerId", args.assignedWorkerId)
-        )
+        .filter((q) => q.eq(q.field("assignedWorkerId"), args.assignedWorkerId))
         .collect();
     }
     return [];
@@ -103,12 +100,11 @@ export const listBySource = query({
     sourceId: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const defects = await ctx.db
       .query("defects")
-      .withIndex("by_source", (q) =>
-        q.eq("sourceType", args.sourceType).eq("sourceId", args.sourceId)
-      )
+      .filter((q) => q.eq(q.field("sourceType"), args.sourceType))
       .collect();
+    return defects.filter((d) => d.sourceId === args.sourceId);
   },
 });
 
@@ -376,11 +372,12 @@ export const addComment = mutation({
       throwNotFound("Worker", args.workerId);
     }
 
-    const currentComments = Array.isArray(defect.comments)
-      ? (defect.comments as Doc<"defects">["comments"])
+    type Comment = { id: string; workerId: Id<"workers">; comment: string; createdAt: number };
+    const currentComments: Comment[] = Array.isArray(defect.comments)
+      ? (defect.comments as Comment[])
       : [];
 
-    const newComment = {
+    const newComment: Comment = {
       id: crypto.randomUUID(),
       workerId: args.workerId,
       comment: args.comment,
@@ -388,7 +385,7 @@ export const addComment = mutation({
     };
 
     await ctx.db.patch(args.id, {
-      comments: [...(currentComments || []), newComment],
+      comments: [...currentComments, newComment],
       ...updatedAt(),
     });
 

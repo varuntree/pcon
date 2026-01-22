@@ -53,12 +53,11 @@ export const listByWorker = query({
 export const listActive = query({
   args: { assetId: v.id("assets") },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const allocations = await ctx.db
       .query("assetAllocations")
-      .withIndex("by_status", (q) =>
-        q.eq("assetId", args.assetId).eq("status", "active")
-      )
+      .withIndex("by_asset", (q) => q.eq("assetId", args.assetId))
       .collect();
+    return allocations.filter((a) => a.status === "active");
   },
 });
 
@@ -78,8 +77,9 @@ export const listByDateRange = query({
     // Filter by date range overlap: allocation overlaps if
     // allocation.startDate < query.endDate AND (allocation.endDate is null OR allocation.endDate > query.startDate)
     return allocations.filter((a) => {
-      const allocEnd = a.endDate ?? Infinity;
-      return a.startDate < args.endDate && allocEnd > args.startDate;
+      const allocStart = a.startDate as number;
+      const allocEnd = (a.endDate as number | null) ?? Infinity;
+      return allocStart < args.endDate && allocEnd > args.startDate;
     });
   },
 });
@@ -125,10 +125,11 @@ export const checkConflict = query({
         return false;
       }
 
-      const existingEnd = a.endDate ?? Infinity;
+      const existingStart = a.startDate as number;
+      const existingEnd = (a.endDate as number | null) ?? Infinity;
 
       // Check overlap: new.startDate < existing.endDate AND new.endDate > existing.startDate
-      return args.startDate < existingEnd && newEnd > a.startDate;
+      return args.startDate < existingEnd && newEnd > existingStart;
     });
 
     return {
@@ -206,8 +207,9 @@ export const create = mutation({
         return false;
       }
 
-      const existingEnd = a.endDate ?? Infinity;
-      return args.startDate < existingEnd && newEnd > a.startDate;
+      const existingStart = a.startDate as number;
+      const existingEnd = (a.endDate as number | null) ?? Infinity;
+      return args.startDate < existingEnd && newEnd > existingStart;
     });
 
     if (conflicts.length > 0) {
@@ -268,9 +270,9 @@ export const update = mutation({
       throwValidation("Cannot update a completed or cancelled allocation");
     }
 
-    const newStartDate = updates.startDate ?? allocation.startDate;
+    const newStartDate = (updates.startDate ?? allocation.startDate) as number;
     const newEndDate =
-      updates.endDate !== undefined ? updates.endDate : allocation.endDate;
+      updates.endDate !== undefined ? updates.endDate : (allocation.endDate as number | undefined);
 
     // Validate dates
     if (newEndDate && newEndDate <= newStartDate) {
@@ -290,8 +292,9 @@ export const update = mutation({
         if (a._id === id) return false;
         if (a.status === "cancelled" || a.status === "completed") return false;
 
-        const existingEnd = a.endDate ?? Infinity;
-        return newStartDate < existingEnd && newEnd > a.startDate;
+        const existingStart = a.startDate as number;
+        const existingEnd = (a.endDate as number | null) ?? Infinity;
+        return newStartDate < existingEnd && newEnd > existingStart;
       });
 
       if (conflicts.length > 0) {

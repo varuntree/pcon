@@ -36,12 +36,11 @@ export const listByStatus = query({
     status: checklistInstanceStatus,
   },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const instances = await ctx.db
       .query("checklistInstances")
-      .withIndex("by_project_status", (q) =>
-        q.eq("projectId", args.projectId).eq("status", args.status)
-      )
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
       .collect();
+    return instances.filter((i) => i.status === args.status);
   },
 });
 
@@ -76,12 +75,11 @@ export const listBySource = query({
     sourceId: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const instances = await ctx.db
       .query("checklistInstances")
-      .withIndex("by_source", (q) =>
-        q.eq("sourceType", args.sourceType).eq("sourceId", args.sourceId)
-      )
+      .filter((q) => q.eq(q.field("sourceType"), args.sourceType))
       .collect();
+    return instances.filter((i) => i.sourceId === args.sourceId);
   },
 });
 
@@ -106,12 +104,12 @@ export const getWithDetails = query({
       throwNotFound("ChecklistInstance", args.id);
     }
 
-    const template = await ctx.db.get(instance.checklistTemplateId);
+    const template = await ctx.db.get(instance.checklistTemplateId as Id<"checklistTemplates">);
     const assignee = instance.assignedTo
-      ? await ctx.db.get(instance.assignedTo)
+      ? await ctx.db.get(instance.assignedTo as Id<"workers">)
       : null;
     const performer = instance.performedByWorkerId
-      ? await ctx.db.get(instance.performedByWorkerId)
+      ? await ctx.db.get(instance.performedByWorkerId as Id<"workers">)
       : null;
 
     return {
@@ -270,7 +268,7 @@ export const saveResponse = mutation({
     };
 
     await ctx.db.patch(args.instanceId, {
-      responses,
+      responses: responses as Record<string, unknown> as Parameters<typeof ctx.db.patch<"checklistInstances">>[1]["responses"],
       ...updatedAt(),
     });
 
@@ -343,16 +341,19 @@ export const complete = mutation({
     }
 
     // Get template to validate required fields
-    const template = await ctx.db.get(instance.checklistTemplateId);
+    const template = await ctx.db.get(instance.checklistTemplateId as Id<"checklistTemplates">);
     if (!template) {
-      throwNotFound("ChecklistTemplate", instance.checklistTemplateId);
+      throwNotFound("ChecklistTemplate", instance.checklistTemplateId as string);
     }
 
     // Validate required fields
     const responses = (instance.responses as Record<string, unknown>) || {};
     const missingFields: string[] = [];
 
-    for (const section of template.sections) {
+    type Section = { id: string; title: string; order: number; fields: Array<{ id: string; type: string; label: string; required: boolean }> };
+    const sections = (template.sections || []) as Section[];
+
+    for (const section of sections) {
       for (const field of section.fields) {
         if (field.required && field.type !== "instruction") {
           const response = responses[field.id] as
@@ -384,7 +385,7 @@ export const complete = mutation({
       let totalPoints = 0;
       let earnedPoints = 0;
 
-      for (const section of template.sections) {
+      for (const section of sections) {
         for (const field of section.fields) {
           if (field.type === "yesno" || field.type === "checkbox") {
             totalPoints++;
@@ -400,8 +401,9 @@ export const complete = mutation({
 
       if (totalPoints > 0) {
         score = Math.round((earnedPoints / totalPoints) * 100);
-        passed = template.passingScore
-          ? score >= template.passingScore
+        const passingScore = template.passingScore as number | undefined;
+        passed = passingScore
+          ? score >= passingScore
           : score >= 80;
       }
     }
@@ -483,7 +485,7 @@ export const linkDefect = mutation({
       throwNotFound("Defect", args.defectId);
     }
 
-    const linkedDefectIds = instance.linkedDefectIds || [];
+    const linkedDefectIds = (instance.linkedDefectIds || []) as Id<"defects">[];
 
     // Avoid duplicates
     if (linkedDefectIds.includes(args.defectId)) {
@@ -517,7 +519,7 @@ export const linkAction = mutation({
       throwNotFound("ActionItem", args.actionId);
     }
 
-    const linkedActionIds = instance.linkedActionIds || [];
+    const linkedActionIds = (instance.linkedActionIds || []) as Id<"actionItems">[];
 
     // Avoid duplicates
     if (linkedActionIds.includes(args.actionId)) {

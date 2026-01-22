@@ -13,7 +13,7 @@ export const listByDefect = query({
       .withIndex("by_defect", (q) => q.eq("defectId", args.defectId))
       .collect();
 
-    return photos.sort((a, b) => a.order - b.order);
+    return photos.sort((a, b) => (a.order as number) - (b.order as number));
   },
 });
 

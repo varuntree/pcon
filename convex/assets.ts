@@ -84,12 +84,11 @@ export const listByStatus = query({
     status: assetStatus,
   },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const assets = await ctx.db
       .query("assets")
-      .withIndex("by_status", (q) =>
-        q.eq("orgId", args.orgId).eq("status", args.status)
-      )
+      .withIndex("by_org", (q) => q.eq("orgId", args.orgId))
       .collect();
+    return assets.filter((a) => a.status === args.status);
   },
 });
 
@@ -97,12 +96,11 @@ export const listByStatus = query({
 export const listAvailable = query({
   args: { orgId: v.id("orgs") },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const assets = await ctx.db
       .query("assets")
-      .withIndex("by_status", (q) =>
-        q.eq("orgId", args.orgId).eq("status", "available")
-      )
+      .withIndex("by_org", (q) => q.eq("orgId", args.orgId))
       .collect();
+    return assets.filter((a) => a.status === "available");
   },
 });
 
@@ -140,12 +138,11 @@ export const getByItemId = query({
     itemId: v.string(),
   },
   handler: async (ctx, args) => {
-    const asset = await ctx.db
+    const assets = await ctx.db
       .query("assets")
-      .withIndex("by_itemId", (q) =>
-        q.eq("orgId", args.orgId).eq("itemId", args.itemId)
-      )
-      .first();
+      .withIndex("by_org", (q) => q.eq("orgId", args.orgId))
+      .collect();
+    const asset = assets.find((a) => a.itemId === args.itemId);
     if (!asset) {
       throwNotFound("Asset with itemId", args.itemId);
     }

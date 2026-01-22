@@ -89,11 +89,9 @@ export const getActivePrestart = query({
   handler: async (ctx, args) => {
     const configs = await ctx.db
       .query("assetChecklistConfigs")
-      .withIndex("by_asset_purpose", (q) =>
-        q.eq("assetId", args.assetId).eq("purpose", "prestart")
-      )
+      .withIndex("by_asset", (q) => q.eq("assetId", args.assetId))
       .collect();
-    return configs.find((c) => c.isActive) ?? null;
+    return configs.find((c) => c.isActive && c.purpose === "prestart") ?? null;
   },
 });
 
@@ -142,11 +140,9 @@ export const create = mutation({
     if (args.isActive !== false) {
       const existing = await ctx.db
         .query("assetChecklistConfigs")
-        .withIndex("by_asset_purpose", (q) =>
-          q.eq("assetId", args.assetId).eq("purpose", args.purpose)
-        )
+        .withIndex("by_asset", (q) => q.eq("assetId", args.assetId))
         .collect();
-      const activeExists = existing.some((c) => c.isActive);
+      const activeExists = existing.some((c) => c.isActive && c.purpose === args.purpose);
       if (activeExists) {
         throwValidation(
           `Active ${args.purpose} config already exists for this asset`
@@ -188,11 +184,9 @@ export const update = mutation({
       if (args.purpose !== config.purpose && config.isActive) {
         const existing = await ctx.db
           .query("assetChecklistConfigs")
-          .withIndex("by_asset_purpose", (q) =>
-            q.eq("assetId", config.assetId).eq("purpose", args.purpose)
-          )
+          .withIndex("by_asset", (q) => q.eq("assetId", config.assetId))
           .collect();
-        const activeExists = existing.some((c) => c.isActive && c._id !== args.id);
+        const activeExists = existing.some((c) => c.isActive && c.purpose === args.purpose && c._id !== args.id);
         if (activeExists) {
           throwValidation(
             `Active ${args.purpose} config already exists for this asset`
@@ -207,7 +201,7 @@ export const update = mutation({
       // Recalculate nextDueAt if lastCompletedAt exists
       if (config.lastCompletedAt) {
         patchData.nextDueAt = calculateNextDueAt(
-          config.lastCompletedAt,
+          config.lastCompletedAt as number,
           args.frequency
         );
       }
@@ -234,11 +228,9 @@ export const activate = mutation({
     // Check for existing active config with same purpose
     const existing = await ctx.db
       .query("assetChecklistConfigs")
-      .withIndex("by_asset_purpose", (q) =>
-        q.eq("assetId", config.assetId).eq("purpose", config.purpose)
-      )
+      .withIndex("by_asset", (q) => q.eq("assetId", config.assetId))
       .collect();
-    const activeExists = existing.some((c) => c.isActive);
+    const activeExists = existing.some((c) => c.isActive && c.purpose === config.purpose);
     if (activeExists) {
       throwValidation(
         `Active ${config.purpose} config already exists for this asset`
