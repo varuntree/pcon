@@ -3,10 +3,10 @@
 ## Current Release: R2 - Safety Core
 
 ### Status
-- **Phase**: Phase 2 Backend [COMPLETE]
+- **Phase**: Phase 5 Core Pages [COMPLETE]
 - **Last Updated**: 2026-01-22
 - **Depends On**: R1 Foundation [COMPLETE] (tag 0.0.3)
-- **Tags**: 0.0.4 (Phase 1 Schema), 0.0.5 (SWMS+Cert APIs), 0.0.6 (All Backend APIs)
+- **Tags**: 0.0.4 (Phase 1 Schema), 0.0.5 (SWMS+Cert APIs), 0.0.6 (All Backend APIs), 0.0.7 (Hooks), 0.0.8 (Shared Components), 0.0.9 (Core Pages + Navigation)
 - **Spec Sources**: safety-swms.md, safety-permits.md, safety-incidents.md, safety-inductions.md, safety-compliance.md, _reference/schema.md
 
 ---
@@ -282,35 +282,41 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 - [x] **UI-024**: ContentBlockRenderer (4 block types)
 - [x] **UI-025**: CertUploadField (front/back photos)
 
-### Phase 5: Core Pages [Effort: L]
+### Phase 5: Core Pages [Effort: L] ✅ COMPLETE (tag 0.0.9)
 
 **Dashboard Enhancements**
 - [ ] **PAGE-007**: Update dashboard with safety stats (pending SWMS, expiring permits, open incidents)
 
 **SWMS Module**
-- [ ] **PAGE-008**: SWMS templates list (`/orgs/[orgId]/swms-templates`)
+- [x] **PAGE-008**: SWMS templates list (`/orgs/[orgId]/swms-templates`) ✅
 - [ ] **PAGE-009**: SWMS template editor (split preview layout)
-- [ ] **PAGE-010**: SWMS documents list (`/orgs/[orgId]/projects/[projectId]/swms`)
+- [x] **PAGE-010**: SWMS documents list (`/orgs/[orgId]/projects/[projectId]/swms`) ✅
 - [ ] **PAGE-011**: SWMS document viewer/editor
 - [ ] **PAGE-012**: SWMS signing flow (internal worker)
 
 **Permits Module**
-- [ ] **PAGE-013**: Permit types list (`/orgs/[orgId]/permit-types`)
-- [ ] **PAGE-014**: Permit instances list (`/orgs/[orgId]/projects/[projectId]/permits`)
+- [x] **PAGE-013**: Permit types list (`/orgs/[orgId]/permit-types`) ✅
+- [x] **PAGE-014**: Permit instances list (`/orgs/[orgId]/projects/[projectId]/permits`) ✅
 - [ ] **PAGE-015**: Permit application form
 - [ ] **PAGE-016**: Permit detail view with lifecycle actions
 
 **Incidents Module**
-- [ ] **PAGE-017**: Incident reports list (`/orgs/[orgId]/projects/[projectId]/incidents`)
+- [x] **PAGE-017**: Incident reports list (`/orgs/[orgId]/projects/[projectId]/incidents`) ✅
 - [ ] **PAGE-018**: Incident report form
 - [ ] **PAGE-019**: Incident detail view with investigation panel
 
 **Inductions Module**
-- [ ] **PAGE-020**: Induction types list (`/orgs/[orgId]/induction-types`)
-- [ ] **PAGE-021**: Induction invites list (`/orgs/[orgId]/projects/[projectId]/inductions`)
+- [x] **PAGE-020**: Induction types list (`/orgs/[orgId]/induction-types`) ✅
+- [x] **PAGE-021**: Induction invites list (`/orgs/[orgId]/projects/[projectId]/inductions`) ✅
 - [ ] **PAGE-022**: Induction completions list
 
-### Phase 6: Public Flows [Effort: M]
+**Additional Pages Implemented**
+- [x] Certifications list page (`/orgs/[orgId]/certifications`)
+- [x] Incident templates list page (`/orgs/[orgId]/incident-templates`)
+- [x] Safety overview page (`/orgs/[orgId]/safety`)
+- [x] Project inductions list page (`/orgs/[orgId]/projects/[projectId]/inductions`)
+
+### Phase 6: Public Flows [Effort: M] ← NEXT
 
 **Public SWMS Signing**
 - [ ] **PUBLIC-001**: `app/(public)/w/swms/[shareCode]/page.tsx` - external SWMS signing
@@ -323,11 +329,11 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 - [ ] **PUBLIC-006**: ContentBlockRenderer (info, video, acknowledgement, upload)
 - [ ] **PUBLIC-007**: SignatureCanvas component
 
-### Phase 7: Navigation Updates [Effort: S]
+### Phase 7: Navigation Updates [Effort: S] ✅ COMPLETE (tag 0.0.9)
 
-- [ ] **NAV-001**: Add Safety group to sidebar (SWMS, Permits, Incidents, Inductions)
-- [ ] **NAV-002**: Add safety routes to icon-rail
-- [ ] **NAV-003**: Update project detail with safety tabs
+- [x] **NAV-001**: Add Safety group to sidebar (SWMS, Permits, Incidents, Inductions) ✅
+- [x] **NAV-002**: Add Shield icon to icon-rail ✅
+- [x] **NAV-003**: Update project detail page with Safety Management section ✅
 
 ---
 
@@ -339,9 +345,9 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 | 2. Backend | 17 | L | ✅ Complete (0.0.5, 0.0.6) |
 | 3. Hooks | 9 | S | ✅ Complete (0.0.7) |
 | 4. Shared Components | 8 | M | ✅ Complete (0.0.8) |
-| 5. Core Pages | 16 | L | Pending |
-| 6. Public Flows | 7 | M | Pending |
-| 7. Navigation | 3 | S | Pending |
+| 5. Core Pages | 16 | L | ✅ Complete (0.0.9) |
+| 6. Public Flows | 7 | M | ← NEXT |
+| 7. Navigation | 3 | S | ✅ Complete (0.0.9) |
 | **Total** | **75** | | |
 
 ---
@@ -637,6 +643,39 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 **Validation Passed**:
 - `npx tsc --noEmit` - 0 errors
 - `npm run lint` - 0 errors (4 img warnings for base64 content, acceptable)
+- `npm run build` - successful
+
+### Phase 5 Implementation Notes (2026-01-22)
+
+**Pages Created**:
+- `src/app/(platform)/orgs/[orgId]/swms-templates/page.tsx` - SWMS templates list
+- `src/app/(platform)/orgs/[orgId]/projects/[projectId]/swms/page.tsx` - SWMS documents list
+- `src/app/(platform)/orgs/[orgId]/permit-types/page.tsx` - Permit types list
+- `src/app/(platform)/orgs/[orgId]/projects/[projectId]/permits/page.tsx` - Permit instances list
+- `src/app/(platform)/orgs/[orgId]/projects/[projectId]/incidents/page.tsx` - Incident reports list
+- `src/app/(platform)/orgs/[orgId]/induction-types/page.tsx` - Induction types list
+- `src/app/(platform)/orgs/[orgId]/projects/[projectId]/inductions/page.tsx` - Project inductions list
+- `src/app/(platform)/orgs/[orgId]/certifications/page.tsx` - Certifications list
+- `src/app/(platform)/orgs/[orgId]/incident-templates/page.tsx` - Incident templates list
+- `src/app/(platform)/orgs/[orgId]/safety/page.tsx` - Safety overview page
+
+**Navigation Updates**:
+- `src/components/layout/sidebar.tsx` - Added Safety navigation section with links to SWMS, Permits, Incidents, Inductions
+- `src/components/layout/icon-rail.tsx` - Added Shield icon for Safety section
+- `src/app/(platform)/orgs/[orgId]/projects/[projectId]/page.tsx` - Added Safety Management section with links to project-level safety modules
+
+**TypeScript Type Fixes**:
+- Fixed build errors in hooks by changing interface extends to type intersections:
+  - `src/hooks/use-incident-reports.ts`
+  - `src/hooks/use-induction-completions.ts`
+  - `src/hooks/use-induction-types.ts`
+  - `src/hooks/use-permit-instances.ts`
+  - `src/hooks/use-swms-documents.ts`
+- Pattern: Changed `interface X extends Y` to `type X = Y & { ... }` for proper type compatibility with Convex generated types
+
+**Validation Passed**:
+- `npx tsc --noEmit` - 0 errors
+- `npm run lint` - 0 warnings/errors
 - `npm run build` - successful
 
 ### Deferred to R3+
