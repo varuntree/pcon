@@ -1,3 +1,6 @@
+IMPORTATN:You may use up to 50 parallel Sonnet task subagents for searches/reads and only 1 Sonnet subagent for build/tests. but you should give them complete and clear instrucitons
+
+
 0a. Study `ralph-wiggum/specs/*` with up to 50 parallel Sonnet subagents to learn the application specifications.
 0b. Study @ralph-wiggum/files/IMPLEMENTATION_PLAN.md.
 0c. Study @ralph-wiggum/files/AGENTS.md for build commands, validation commands, and Chrome E2E testing patterns.
