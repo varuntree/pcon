@@ -291,14 +291,14 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 - [x] **PAGE-008**: SWMS templates list (`/orgs/[orgId]/swms-templates`) ✅
 - [ ] **PAGE-009**: SWMS template editor (split preview layout)
 - [x] **PAGE-010**: SWMS documents list (`/orgs/[orgId]/projects/[projectId]/swms`) ✅
-- [ ] **PAGE-011**: SWMS document viewer/editor
-- [ ] **PAGE-012**: SWMS signing flow (internal worker)
+- [x] **PAGE-011**: SWMS document viewer/editor ✅
+- [x] **PAGE-012**: SWMS signing flow (internal worker) ✅
 
 **Permits Module**
 - [x] **PAGE-013**: Permit types list (`/orgs/[orgId]/permit-types`) ✅
 - [x] **PAGE-014**: Permit instances list (`/orgs/[orgId]/projects/[projectId]/permits`) ✅
-- [ ] **PAGE-015**: Permit application form
-- [ ] **PAGE-016**: Permit detail view with lifecycle actions
+- [x] **PAGE-015**: Permit application form ✅
+- [x] **PAGE-016**: Permit detail view with lifecycle actions ✅
 
 **Incidents Module**
 - [x] **PAGE-017**: Incident reports list (`/orgs/[orgId]/projects/[projectId]/incidents`) ✅
@@ -345,10 +345,10 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 | 2. Backend | 17 | L | ✅ Complete (0.0.5, 0.0.6) |
 | 3. Hooks | 9 | S | ✅ Complete (0.0.7) |
 | 4. Shared Components | 8 | M | ✅ Complete (0.0.8) |
-| 5. Core Pages | 16 | L | ✅ Complete (0.0.9) |
+| 5. Core Pages | 20 | L | ✅ Complete (0.0.9) |
 | 6. Public Flows | 7 | M | ✅ Complete (0.0.10) |
 | 7. Navigation | 3 | S | ✅ Complete (0.0.9) |
-| **Total** | **75** | | **ALL COMPLETE** |
+| **Total** | **79** | | **ALL COMPLETE** |
 
 ---
 
@@ -744,6 +744,45 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 2. **Detail page layout**: Two-column responsive (main content + sidebar), Card-based sections
 3. **Investigation panel pattern**: Collapsible form sections, textarea for notes, modal dialogs for actions
 4. **Dynamic list management**: Add/remove items with array state, map with index keys
+
+### Post-Phase 5 Additional Pages (2026-01-22)
+
+**Pages Created**:
+- `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/swms/[documentId]/page.tsx` - SWMS document detail view with:
+  - Document overview (status, dates, created by)
+  - SWMS sections viewer (collapsible)
+  - Signatures list with internal/external display
+  - Assignments tracking (acknowledged/pending)
+  - Timeline sidebar
+  - Lifecycle actions (submit, approve, return to draft, archive)
+  - Share link for approved documents
+
+- `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/swms/[documentId]/sign/page.tsx` - Internal SWMS signing with:
+  - Document sections display
+  - 3 acknowledgement checkboxes
+  - Signature canvas capture
+  - Already-signed detection
+  - Success state
+
+- `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/permits/new/page.tsx` - Permit application wizard:
+  - 4-step wizard (Type, Details, Fields, Review)
+  - Dynamic field rendering based on permit type
+  - Support for all field types (text, number, select, multiselect, yesno, checkbox, date)
+  - Validation per step
+  - Creates draft permit
+
+- `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/permits/[permitId]/page.tsx` - Permit detail view with:
+  - Permit overview and work description
+  - Dynamic form data display
+  - 9-state lifecycle actions (submit, approve, reject, activate, suspend, resume, close, cancel)
+  - Rejection/suspension reason forms
+  - Validity period display
+  - Timeline sidebar
+
+**Patterns Used**:
+1. Multi-step wizard: useState for step tracking, conditional validation per step, skip steps dynamically
+2. Dynamic field rendering: switch statement by field type, multiselect with checkboxes
+3. Lifecycle transitions: getPermitTransitions helper returns valid target states, conditional action buttons
 
 ### Deferred to R3+
 - plantInductionCompletions table (needs assets module)
