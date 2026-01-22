@@ -270,7 +270,17 @@ export function useSWMSTemplatesByStatus(
   return { data, isLoading };
 }
 
-export function useSWMSTemplateVersionHistory(id: Id<"swmsTemplates"> | string) {
+export interface SWMSTemplateVersionHistoryEntry {
+  _id: string;
+  version: number;
+  status: string;
+  createdAt: number;
+}
+
+export function useSWMSTemplateVersionHistory(id: Id<"swmsTemplates"> | string): {
+  data: SWMSTemplateVersionHistoryEntry[];
+  isLoading: boolean;
+} {
   const convexAvailable = useConvexAvailable();
 
   const historyQuery = useQuery(
@@ -278,7 +288,7 @@ export function useSWMSTemplateVersionHistory(id: Id<"swmsTemplates"> | string) 
     convexAvailable ? { id: id as Id<"swmsTemplates"> } : "skip"
   );
 
-  const demoHistory = [
+  const demoHistory: SWMSTemplateVersionHistoryEntry[] = [
     {
       _id: id as string,
       version: 1,
@@ -286,7 +296,9 @@ export function useSWMSTemplateVersionHistory(id: Id<"swmsTemplates"> | string) 
       createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
     },
   ];
-  const data = convexAvailable ? (historyQuery ?? []) : demoHistory;
+  const data: SWMSTemplateVersionHistoryEntry[] = convexAvailable
+    ? ((historyQuery ?? []) as SWMSTemplateVersionHistoryEntry[])
+    : demoHistory;
   const isLoading = convexAvailable && historyQuery === undefined;
 
   return { data, isLoading };

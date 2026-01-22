@@ -289,7 +289,7 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 
 **SWMS Module**
 - [x] **PAGE-008**: SWMS templates list (`/orgs/[orgId]/swms-templates`) ✅
-- [ ] **PAGE-009**: SWMS template editor (split preview layout)
+- [x] **PAGE-009**: SWMS template editor (multi-step wizard) ✅
 - [x] **PAGE-010**: SWMS documents list (`/orgs/[orgId]/projects/[projectId]/swms`) ✅
 - [x] **PAGE-011**: SWMS document viewer/editor ✅
 - [x] **PAGE-012**: SWMS signing flow (internal worker) ✅
@@ -308,7 +308,7 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 **Inductions Module**
 - [x] **PAGE-020**: Induction types list (`/orgs/[orgId]/induction-types`) ✅
 - [x] **PAGE-021**: Induction invites list (`/orgs/[orgId]/projects/[projectId]/inductions`) ✅
-- [ ] **PAGE-022**: Induction completions list
+- [x] **PAGE-022**: Induction completions list ✅ (integrated in PAGE-021 with tabs)
 
 **Additional Pages Implemented**
 - [x] Certifications list page (`/orgs/[orgId]/certifications`)
@@ -783,6 +783,37 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 1. Multi-step wizard: useState for step tracking, conditional validation per step, skip steps dynamically
 2. Dynamic field rendering: switch statement by field type, multiselect with checkboxes
 3. Lifecycle transitions: getPermitTransitions helper returns valid target states, conditional action buttons
+
+### SWMS Template Editor Implementation Notes (2026-01-22)
+
+**Files Created**:
+- `src/components/safety/swms-section-editor.tsx` - Full section editor with:
+  - 13 section type editors (title, activity, ppe, hazards, controls, plant, hazmat, permits, training, emergency, legislation, hrcw, supervision)
+  - Add/remove sections, reorder with up/down buttons
+  - Collapsible section editing
+  - Type-specific content editors (array items, text fields, nested objects)
+  - `getRecommendedSections()` helper for quick template creation
+  - `useSWMSSections()` hook for state management
+- `src/app/(platform)/orgs/[orgId]/swms-templates/new/page.tsx` - New template wizard:
+  - 3-step wizard: Details → Sections → Review
+  - Step validation and navigation
+  - "Add Recommended Sections" quick action
+  - Creates template as draft
+- `src/app/(platform)/orgs/[orgId]/swms-templates/[templateId]/page.tsx` - Template detail/edit:
+  - View mode: Overview, sections viewer, version history sidebar
+  - Edit mode: Edit name/description, section editor (draft templates only)
+  - Actions: Edit, Clone, Publish, Archive
+  - Version history display with navigation
+
+**Hook Updates**:
+- `src/hooks/use-swms-templates.ts` - Added `SWMSTemplateVersionHistoryEntry` type export
+
+**Patterns Established**:
+1. Section editor uses type-specific content structures matching schema
+2. Published templates are immutable - must clone to edit
+3. Draft templates can be edited in-place
+4. Section reordering maintains sequential order values
+5. Multi-step wizard with validation per step (reused from permits pattern)
 
 ### Deferred to R3+
 - plantInductionCompletions table (needs assets module)

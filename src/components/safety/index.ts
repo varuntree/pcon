@@ -69,3 +69,11 @@ export {
 
 // Safety modules card with live counts for project dashboard
 export { SafetyModulesCard } from "./safety-modules-card";
+
+// SWMS section editor for template creation/editing
+export {
+  SWMSSectionEditor,
+  getRecommendedSections,
+  useSWMSSections,
+  type SwmsSection as EditableSwmsSection,
+} from "./swms-section-editor";
