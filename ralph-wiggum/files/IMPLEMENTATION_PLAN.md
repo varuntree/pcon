@@ -3,10 +3,10 @@
 ## Current Release: R2 - Safety Core
 
 ### Status
-- **Phase**: Phase 5 Core Pages [COMPLETE]
+- **Phase**: R2 Safety Core [COMPLETE]
 - **Last Updated**: 2026-01-22
 - **Depends On**: R1 Foundation [COMPLETE] (tag 0.0.3)
-- **Tags**: 0.0.4 (Phase 1 Schema), 0.0.5 (SWMS+Cert APIs), 0.0.6 (All Backend APIs), 0.0.7 (Hooks), 0.0.8 (Shared Components), 0.0.9 (Core Pages + Navigation)
+- **Tags**: 0.0.4 (Phase 1 Schema), 0.0.5 (SWMS+Cert APIs), 0.0.6 (All Backend APIs), 0.0.7 (Hooks), 0.0.8 (Shared Components), 0.0.9 (Core Pages + Navigation), 0.0.10 (Public Flows)
 - **Spec Sources**: safety-swms.md, safety-permits.md, safety-incidents.md, safety-inductions.md, safety-compliance.md, _reference/schema.md
 
 ---
@@ -316,18 +316,18 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 - [x] Safety overview page (`/orgs/[orgId]/safety`)
 - [x] Project inductions list page (`/orgs/[orgId]/projects/[projectId]/inductions`)
 
-### Phase 6: Public Flows [Effort: M] ← NEXT
+### Phase 6: Public Flows [Effort: M] ✅ COMPLETE (tag 0.0.10)
 
 **Public SWMS Signing**
-- [ ] **PUBLIC-001**: `app/(public)/w/swms/[shareCode]/page.tsx` - external SWMS signing
-- [ ] **PUBLIC-002**: SWMS sections viewer (collapsible)
-- [ ] **PUBLIC-003**: External signature form (name, company, canvas)
+- [x] **PUBLIC-001**: `app/(public)/w/swms/[shareCode]/page.tsx` - external SWMS signing ✅
+- [x] **PUBLIC-002**: SWMS sections viewer (uses existing SWMSSectionsViewer) ✅
+- [x] **PUBLIC-003**: External signature form (name, company, SignatureCanvas, AcknowledgementCheckboxes) ✅
 
 **Public Induction Wizard**
-- [ ] **PUBLIC-004**: `app/(public)/w/induct/[shareCode]/page.tsx` - off-site induction
-- [ ] **PUBLIC-005**: 5-step wizard component
-- [ ] **PUBLIC-006**: ContentBlockRenderer (info, video, acknowledgement, upload)
-- [ ] **PUBLIC-007**: SignatureCanvas component
+- [x] **PUBLIC-004**: `app/(public)/w/induct/[shareCode]/page.tsx` - off-site induction ✅
+- [x] **PUBLIC-005**: 5-step wizard (uses existing InductionStepIndicator + useInductionSteps) ✅
+- [x] **PUBLIC-006**: ContentBlockRenderer (uses existing component) ✅
+- [x] **PUBLIC-007**: SignatureCanvas (uses existing component) ✅
 
 ### Phase 7: Navigation Updates [Effort: S] ✅ COMPLETE (tag 0.0.9)
 
@@ -346,9 +346,9 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 | 3. Hooks | 9 | S | ✅ Complete (0.0.7) |
 | 4. Shared Components | 8 | M | ✅ Complete (0.0.8) |
 | 5. Core Pages | 16 | L | ✅ Complete (0.0.9) |
-| 6. Public Flows | 7 | M | ← NEXT |
+| 6. Public Flows | 7 | M | ✅ Complete (0.0.10) |
 | 7. Navigation | 3 | S | ✅ Complete (0.0.9) |
-| **Total** | **75** | | |
+| **Total** | **75** | | **ALL COMPLETE** |
 
 ---
 
@@ -677,6 +677,44 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 - `npx tsc --noEmit` - 0 errors
 - `npm run lint` - 0 warnings/errors
 - `npm run build` - successful
+
+### Phase 6 Implementation Notes (2026-01-22)
+
+**Files Created**:
+- `src/app/(public)/layout.tsx` - Public route layout (ConvexProvider, no auth)
+- `src/app/(public)/w/swms/[shareCode]/page.tsx` - SWMS public signing page
+- `src/app/(public)/w/induct/[shareCode]/page.tsx` - Induction wizard page
+- `src/hooks/use-swms-public.ts` - Hook for swmsPublic API (getByShareCode, signExternal, getSignatureCount)
+- `src/hooks/use-induction-public.ts` - Hook for inductionPublic API (getByShareCode, submitWizard, getCompletionStatus)
+
+**Key Implementation Details**:
+1. **Public routes under `/w/`**: No auth required, shareCode validation in Convex backend
+2. **Reused existing components**: SignatureCanvas, SWMSSectionsViewer, AcknowledgementCheckboxes, InductionStepIndicator, ContentBlockRenderer, CertUploadField
+3. **Demo data fallback**: Hooks fall back to DEMO_* arrays when CONVEX_URL missing (offline development)
+4. **Type conversion**: Used `unknown` intermediate cast for InductionStep → ContentBlock due to schema flexibility
+5. **Server restart required**: New route groups require dev server restart to be detected
+
+**SWMS Public Signing Flow**:
+- Display SWMS document header + sections (collapsible)
+- Worker enters name, optional company
+- 3 acknowledgement checkboxes (hazards, controls, PPE)
+- SignatureCanvas with undo/clear
+- Submit creates external signature via swmsPublic.signExternal
+
+**Induction Public Wizard Flow**:
+- 5-step wizard: Profile → Emergency Contact → Content → Tickets → Signature
+- Profile: fullName (req), email (req), phone, trade, employer
+- Emergency: name (req), phone (req), relationship (select)
+- Content: Uses ContentBlockRenderer for induction blocks
+- Tickets: Uses CertUploadField for required certifications
+- Signature: Declaration + SignatureCanvas
+- Submit creates completion via inductionPublic.submitWizard (status: awaiting_review)
+
+**Validation Passed**:
+- `npx tsc --noEmit` - 0 errors
+- `npm run lint` - 0 errors (4 img warnings for base64 content, acceptable)
+- `npm run build` - successful
+- Chrome E2E tested both flows with demo data
 
 ### Deferred to R3+
 - plantInductionCompletions table (needs assets module)
