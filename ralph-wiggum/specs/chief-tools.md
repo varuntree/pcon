@@ -99,7 +99,7 @@ Omitting settingSources means CLAUDE.md and skills are ignored.
 ### MCP Tools
 **REQ-004: db_read with Scope Enforcement**
 - Tool name: `mcp__convex__db_read`
-- Operations: describe_schema, describe_table, get, multi_get, list, search_text, document_metadata, drawing_metadata, document_chunks
+- Operations: describe_schema, describe_table, get, multi_get, list, search_text
 - Scope enforcement: Auto-injects projectId filter based on table.scopeHint ('project' tables require projectId, 'org' tables require orgId, 'mixed' use available scope)
 - Scope injection rules: Cannot override projectId, enforced at MCP server level before Convex access
 - Limits: max 20 requests per call, max 100 records per list, max 50 IDs per multi_get
@@ -518,7 +518,7 @@ query({
 ### Core MCP Tools
 | Tool | Operation | Parameters | Returns |
 |------|-----------|------------|---------|
-| mcp__convex__db_read | Query database | op (describe_schema\|describe_table\|get\|multi_get\|list\|search_text\|document_metadata\|drawing_metadata\|document_chunks), table, index, filters, limit, orderBy | records[], count, scope metadata |
+| mcp__convex__db_read | Query database | op (describe_schema\|describe_table\|get\|multi_get\|list\|search_text), table, index, filters, limit, orderBy | records[], count, scope metadata |
 | mcp__convex__db_write | Mutate database | scope, title, summary, priority, items[] (type, table, data, id, reason) | executionId, results[], undoable flag |
 | mcp__convex__undo | Reverse changeset | changesetId | success flag |
 
@@ -528,7 +528,7 @@ query({
 | ai.preamble | Update status line | title, detail (construction domain terms only) | void |
 | ai.present | Render ChatKit widgets | artifact type (result\|questions\|confirm\|sources\|intake), structured data | void |
 | ai.ui_navigate | Suggest navigation | path, module, submodule, entityType, pageNumber, ctaLabel, description, external | void |
-| ai.read_document | Read/analyze documents | documentId, focus (optional directive) | summary, extracted facts, suggestedDocType, confidence |
+| ai.read_document | Read documents directly (multimodal) | documentId, focus (optional directive) | summary, extracted facts, suggestedDocType |
 
 ### Built-in Tools (Claude SDK)
 Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch, AskUserQuestion, Task, Skill
@@ -572,27 +572,13 @@ Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch, AskUserQuestion, Task,
 - Returns: records[] (max 100)
 - Scope: Auto-injects projectId/orgId filters
 
-### document_metadata
-- Purpose: Document with chunk preview (first 6 chunks)
-- Parameters: documentId
-- Returns: document + chunks[] (caps at maxPreviewChars = 2000)
-- Use case: Quick preview before full retrieval
-
-### drawing_metadata
-- Purpose: Drawing metadata with annotations
-- Parameters: drawingId
-- Returns: drawing object with annotations[]
-
-### document_chunks
-- Purpose: Paginated chunks
-- Parameters: documentId, page (default 0)
-- Returns: chunks[] (caps at maxChunksPerPage = 6, maxCharsPerChunk = 4000)
-- Use case: Progressive loading for large documents
-
 ## ai.read_document Tool
 
 ### Purpose
-Read and analyze project/org documents from sourceDocuments table
+Read project/org documents directly using Claude's multimodal capability
+
+### Architecture
+Files stored in Convex storage → Claude reads directly via MCP tools (no preprocessing, no embeddings, no external services)
 
 ### Parameters
 - `documentId`: string (required)
@@ -601,29 +587,17 @@ Read and analyze project/org documents from sourceDocuments table
 ### Processing Flow
 1. Scope validation (projectId/orgId match)
 2. Document lookup from sourceDocuments table
-3. Type detection:
-   - Text-like (txt, csv, md, json): Direct download
-   - PDF: tryExtractPdfText via pdfjs-dist
-   - Other: OpenAI vision API
-4. Fallback chain: OpenAI with fileUrl → OpenAI with blob upload → Local PDF extraction → Error
+3. Retrieve file URL from Convex storage
+4. Claude reads file directly (multimodal: PDFs, images, text files)
+5. Returns analysis based on focus directive
 
-### OpenAI Analysis Returns
-- summary: ≤120 words
-- suggestedDocType: string
-- suggestedTitle: string
-- suggestedTags: string[]
-- confidence: number (0-1)
-- questions: string[] (clarifying questions)
-- extracted: string[] (≤12 key facts)
-
-### Limits
-- MAX_TEXT_CHARS: 40,000
-- MAX_DOWNLOAD_BYTES_FOR_AI: 30MB
-- PDF max pages: 50
-- PDF max chars: 80,000
+### Returns
+- summary: brief overview
+- extracted: key facts relevant to focus
+- suggestedDocType: string (if classification requested)
 
 ### Focus Handling
-If focus provided, prioritize extracting relevant details in "extracted" field
+If focus provided, Claude prioritizes extracting relevant details
 
 ## ai.present Artifact Types
 
@@ -793,9 +767,6 @@ All MCP tools receive ChiefRequestContext, tools close over context
 - maxFieldsInDescribeTable: 200
 - maxRowsPerList: 100
 - maxIdsPerMultiGet: 50
-- maxPreviewChars: 2000 (document previews)
-- maxChunksPerPage: 6
-- maxCharsPerChunk: 4000
 - indexEnforcementMode: index_only|allow_scan
 
 ### Skill Optimization

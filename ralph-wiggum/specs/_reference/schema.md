@@ -28,7 +28,7 @@ Complete data model specification for PRJ Construction rebuild - 52 core tables 
 |--------|--------|---------|
 | **Foundation** | orgs, projects, workers, trades, workPackages, workerAssignments | Root entities, scoping hierarchy |
 | **Site Operations** | toolboxMeetings, toolboxAttendance, attendanceLogs, diaries, briefings, scheduledTasks, scheduleDependencies, schedulePhases, scheduleShares, signOnConfigs, prestartNotices, alerts | Daily site operations, scheduling, attendance |
-| **Site Documents** | sourceDocuments, documentChunks, documentEntityLinks, documentFolders, documentUploadLinks | Document management with AI chunking (RAG) |
+| **Site Documents** | sourceDocuments, documentEntityLinks, documentFolders, documentUploadLinks | Document management (Claude reads files directly) |
 | **SWMS Safety** | swmsTemplates, swmsDocuments, swmsSignatures, swmsAssignments | Safe Work Method Statements (60+ fields, 12 section types) |
 | **Safety Permits** | permitTypes, permitTypeAssignments, permitInstances | Permit lifecycle (9 states) |
 | **Safety Inductions** | inductionTypes, inductionInvites, inductionCompletions, plantInductionCompletions | Site/plant inductions with wizard workflow |
@@ -252,7 +252,7 @@ linkedEntityId: v.optional(v.string()),
 // Index for reverse lookups
 .index("by_linked", ["linkedEntityType", "linkedEntityId"])
 
-// Used by: mediaFiles, documentChunks
+// Used by: mediaFiles
 ```
 
 ### Template → Instance Pattern
@@ -1588,22 +1588,6 @@ defineTable({
 .index("by_project", ["projectId"])
 .index("by_folder", ["folderId"])
 .index("by_category", ["projectId", "category"])
-```
-
-**documentChunks** (RAG embeddings)
-```typescript
-defineTable({
-  sourceDocumentId: v.id("sourceDocuments"),
-  chunkIndex: v.number(),
-  content: v.string(),
-  embedding: v.optional(v.array(v.number())),
-  linkedEntityType: v.optional(v.string()),
-  linkedEntityId: v.optional(v.string()),
-  metadata: v.optional(v.any()),
-  createdAt: v.string()
-})
-.index("by_document", ["sourceDocumentId"])
-.index("by_linked", ["linkedEntityType", "linkedEntityId"])
 ```
 
 **documentEntityLinks** (Polymorphic document references)

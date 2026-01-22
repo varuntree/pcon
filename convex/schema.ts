@@ -175,6 +175,163 @@ const inductionCompletionStatus = v.union(
   v.literal("superseded")
 );
 
+// ===================
+// R3 QUALITY VALIDATORS
+// ===================
+
+// Checklist field types (16 types)
+const checklistFieldType = v.union(
+  v.literal("text"),
+  v.literal("textarea"),
+  v.literal("number"),
+  v.literal("date"),
+  v.literal("time"),
+  v.literal("datetime"),
+  v.literal("yesno"),
+  v.literal("checkbox"),
+  v.literal("select"),
+  v.literal("multiselect"),
+  v.literal("photo"),
+  v.literal("signature"),
+  v.literal("attachment"),
+  v.literal("instruction"),
+  v.literal("notes"),
+  v.literal("action_trigger")
+);
+
+// Checklist instance status
+const checklistInstanceStatus = v.union(
+  v.literal("in_progress"),
+  v.literal("completed"),
+  v.literal("cancelled")
+);
+
+// Checklist source types (polymorphic linking)
+const checklistSourceType = v.union(
+  v.literal("asset"),
+  v.literal("itp"),
+  v.literal("incident"),
+  v.literal("defect"),
+  v.literal("manual")
+);
+
+// Defect status
+const defectStatus = v.union(
+  v.literal("open"),
+  v.literal("in_progress"),
+  v.literal("resolved"),
+  v.literal("closed")
+);
+
+// Defect category
+const defectCategory = v.union(
+  v.literal("builder"),
+  v.literal("client"),
+  v.literal("safety"),
+  v.literal("other")
+);
+
+// Defect/action priority
+const priorityLevel = v.union(
+  v.literal("low"),
+  v.literal("medium"),
+  v.literal("high"),
+  v.literal("critical")
+);
+
+// Action item status
+const actionItemStatus = v.union(
+  v.literal("open"),
+  v.literal("in_progress"),
+  v.literal("completed"),
+  v.literal("cancelled")
+);
+
+// Action source types
+const actionSourceType = v.union(
+  v.literal("checklist"),
+  v.literal("inspection"),
+  v.literal("incident"),
+  v.literal("defect"),
+  v.literal("itp"),
+  v.literal("manual")
+);
+
+// ===================
+// R3 ASSET VALIDATORS
+// ===================
+
+// Asset type
+const assetType = v.union(
+  v.literal("plant"),
+  v.literal("equipment"),
+  v.literal("vehicle"),
+  v.literal("tool"),
+  v.literal("other")
+);
+
+// Asset status
+const assetStatus = v.union(
+  v.literal("available"),
+  v.literal("in_use"),
+  v.literal("maintenance"),
+  v.literal("retired")
+);
+
+// Asset allocation type
+const allocationType = v.union(
+  v.literal("reservation"),
+  v.literal("assignment")
+);
+
+// Asset allocation status
+const allocationStatus = v.union(
+  v.literal("pending"),
+  v.literal("active"),
+  v.literal("completed"),
+  v.literal("cancelled")
+);
+
+// Asset request type
+const assetRequestType = v.union(
+  v.literal("booking"),
+  v.literal("transfer"),
+  v.literal("maintenance")
+);
+
+// Asset request status
+const assetRequestStatus = v.union(
+  v.literal("pending"),
+  v.literal("approved"),
+  v.literal("rejected"),
+  v.literal("cancelled")
+);
+
+// Service log type
+const serviceType = v.union(
+  v.literal("maintenance"),
+  v.literal("repair"),
+  v.literal("inspection"),
+  v.literal("calibration"),
+  v.literal("other")
+);
+
+// Checklist config purpose
+const checklistPurpose = v.union(
+  v.literal("inspection"),
+  v.literal("prestart")
+);
+
+// Checklist config frequency
+const checklistFrequency = v.union(
+  v.literal("daily"),
+  v.literal("weekly"),
+  v.literal("monthly"),
+  v.literal("quarterly"),
+  v.literal("annually"),
+  v.literal("on_use")
+);
+
 export default defineSchema({
   // ===================
   // FOUNDATION TABLES
@@ -735,4 +892,428 @@ export default defineSchema({
     .index("by_worker_type", ["workerId", "inductionTypeId"])
     .index("by_status", ["orgId", "status"])
     .index("by_invite", ["inviteId"]),
+
+  // ===================
+  // R3: QUALITY CHECKLISTS MODULE
+  // ===================
+
+  // Checklist Templates - Org/project level dynamic forms
+  checklistTemplates: defineTable({
+    orgId: v.id("orgs"),
+    projectId: v.optional(v.id("projects")), // null = org-wide template
+    name: v.string(),
+    description: v.optional(v.string()),
+    scope: v.optional(v.string()), // Descriptive scope (e.g., "Quality", "Safety")
+    // Sections with fields
+    sections: v.array(
+      v.object({
+        id: v.string(),
+        title: v.string(),
+        order: v.number(),
+        fields: v.array(
+          v.object({
+            id: v.string(),
+            type: checklistFieldType,
+            label: v.string(),
+            required: v.boolean(),
+            order: v.number(),
+            helpText: v.optional(v.string()),
+            // For select/multiselect
+            options: v.optional(v.array(v.string())),
+            // For number
+            min: v.optional(v.number()),
+            max: v.optional(v.number()),
+            // For textarea
+            rows: v.optional(v.number()),
+            placeholder: v.optional(v.string()),
+            maxLength: v.optional(v.number()),
+            // For photo
+            maxPhotos: v.optional(v.number()),
+            // For signature
+            signatureConfig: v.optional(
+              v.object({
+                label: v.string(),
+                role: v.string(),
+                required: v.boolean(),
+              })
+            ),
+            // For action_trigger
+            actionTrigger: v.optional(
+              v.object({
+                triggerWhen: v.string(),
+                actionTitle: v.string(),
+                actionPriority: v.string(),
+              })
+            ),
+            // Conditional logic
+            conditions: v.optional(
+              v.array(
+                v.object({
+                  triggerFieldId: v.string(),
+                  operator: v.literal("equals"),
+                  value: v.any(),
+                  action: v.union(v.literal("show"), v.literal("hide")),
+                })
+              )
+            ),
+          })
+        ),
+      })
+    ),
+    // Plant integration
+    isPlantInduction: v.optional(v.boolean()),
+    plantRegisterId: v.optional(v.id("assetRegisters")),
+    plantAllItemsInRegister: v.optional(v.boolean()),
+    plantAssetIds: v.optional(v.array(v.id("assets"))),
+    // Scoring
+    scoringEnabled: v.optional(v.boolean()),
+    passingScore: v.optional(v.number()),
+    // Status
+    isActive: v.boolean(),
+    isSystemTemplate: v.optional(v.boolean()),
+    createdBy: v.id("workers"),
+    ...timestamps,
+  })
+    .index("by_org", ["orgId"])
+    .index("by_project", ["projectId"])
+    .index("by_org_active", ["orgId", "isActive"]),
+
+  // Checklist Instances - Executed checklist records
+  checklistInstances: defineTable({
+    orgId: v.id("orgs"),
+    projectId: v.id("projects"),
+    checklistTemplateId: v.id("checklistTemplates"),
+    instanceNumber: v.optional(v.string()), // Auto-generated per project (CHK-001)
+    // Assignment
+    assignedTo: v.optional(v.id("workers")),
+    performedByWorkerId: v.optional(v.id("workers")),
+    // Timing
+    dueDate: v.optional(v.number()),
+    performedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    // Source linking (polymorphic)
+    sourceType: v.optional(checklistSourceType),
+    sourceId: v.optional(v.string()),
+    // Plant linking
+    plantRegisterId: v.optional(v.id("assetRegisters")),
+    plantAssetId: v.optional(v.id("assets")),
+    plantBookingId: v.optional(v.string()),
+    // Status
+    status: checklistInstanceStatus,
+    // Responses (keyed by fieldId)
+    responses: v.optional(v.any()),
+    // Linked items
+    linkedDefectIds: v.optional(v.array(v.id("defects"))),
+    linkedActionIds: v.optional(v.array(v.id("actionItems"))),
+    // Score (if scoring enabled)
+    score: v.optional(v.number()),
+    passed: v.optional(v.boolean()),
+    ...timestamps,
+  })
+    .index("by_org", ["orgId"])
+    .index("by_project", ["projectId"])
+    .index("by_template", ["checklistTemplateId"])
+    .index("by_assignee", ["assignedTo"])
+    .index("by_performer", ["performedByWorkerId"])
+    .index("by_project_status", ["projectId", "status"])
+    .index("by_source", ["sourceType", "sourceId"])
+    .index("by_asset", ["plantAssetId"]),
+
+  // ===================
+  // R3: QUALITY DEFECTS MODULE
+  // ===================
+
+  // Defects - Quality issues requiring resolution
+  defects: defineTable({
+    orgId: v.id("orgs"),
+    projectId: v.id("projects"),
+    defectNumber: v.string(), // Auto-generated per project (DEFECT-001)
+    title: v.string(),
+    description: v.optional(v.string()),
+    category: defectCategory,
+    location: v.optional(v.string()),
+    level: v.optional(v.string()), // Building level/floor
+    area: v.optional(v.string()), // Specific area
+    priority: priorityLevel,
+    status: defectStatus,
+    // Assignment (either org OR worker, not both)
+    assignedTo: v.optional(v.id("orgs")), // Assigned to company
+    assignedWorkerId: v.optional(v.id("workers")), // Assigned to worker
+    dueDate: v.optional(v.number()),
+    // Source linking (polymorphic)
+    sourceType: v.optional(checklistSourceType),
+    sourceId: v.optional(v.string()),
+    assetId: v.optional(v.id("assets")), // Direct asset link
+    drawingId: v.optional(v.string()), // Future: link to drawings
+    // Workflow
+    createdBy: v.id("workers"),
+    resolvedAt: v.optional(v.number()),
+    closedAt: v.optional(v.number()),
+    closedBy: v.optional(v.id("workers")),
+    // Embedded comments
+    comments: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          workerId: v.id("workers"),
+          comment: v.string(),
+          createdAt: v.number(),
+        })
+      )
+    ),
+    metadata: v.optional(v.any()),
+    ...timestamps,
+  })
+    .index("by_org", ["orgId"])
+    .index("by_project", ["projectId"])
+    .index("by_project_number", ["projectId", "defectNumber"])
+    .index("by_project_status", ["projectId", "status"])
+    .index("by_assignee", ["assignedTo"])
+    .index("by_worker_assignee", ["assignedWorkerId"])
+    .index("by_source", ["sourceType", "sourceId"])
+    .index("by_asset", ["assetId"]),
+
+  // Defect Photos - Photo attachments with markup
+  defectPhotos: defineTable({
+    defectId: v.id("defects"),
+    mediaFileId: v.id("_storage"),
+    caption: v.optional(v.string()),
+    markup: v.optional(v.string()), // SVG/canvas JSON for annotations
+    order: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_defect", ["defectId"])
+    .index("by_mediaFile", ["mediaFileId"]),
+
+  // Action Items - Tasks to be completed
+  actionItems: defineTable({
+    orgId: v.id("orgs"),
+    projectId: v.id("projects"),
+    actionNumber: v.string(), // Auto-generated per project (ACTION-001)
+    title: v.string(),
+    description: v.optional(v.string()),
+    priority: priorityLevel,
+    status: actionItemStatus,
+    // Assignment (either org OR worker, not both)
+    assignedTo: v.optional(v.id("orgs")),
+    assignedWorkerId: v.optional(v.id("workers")),
+    dueDate: v.optional(v.number()),
+    // Source linking (polymorphic)
+    sourceType: v.optional(actionSourceType),
+    sourceId: v.optional(v.string()),
+    // Attachments
+    attachmentIds: v.optional(v.array(v.id("_storage"))),
+    // Public access
+    shareCode: v.optional(v.string()), // 12-char base64url for external access
+    // Workflow
+    createdBy: v.id("workers"),
+    completedAt: v.optional(v.number()),
+    cancelledAt: v.optional(v.number()),
+    cancelReason: v.optional(v.string()),
+    // Embedded comments
+    comments: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          workerId: v.id("workers"),
+          comment: v.string(),
+          createdAt: v.number(),
+        })
+      )
+    ),
+    metadata: v.optional(v.any()),
+    ...timestamps,
+  })
+    .index("by_org", ["orgId"])
+    .index("by_project", ["projectId"])
+    .index("by_project_status", ["projectId", "status"])
+    .index("by_assignee", ["assignedTo"])
+    .index("by_worker_assignee", ["assignedWorkerId"])
+    .index("by_source", ["sourceType", "sourceId"])
+    .index("by_shareCode", ["shareCode"])
+    .index("by_dueDate", ["projectId", "dueDate"]),
+
+  // ===================
+  // R3: ASSET MANAGEMENT MODULE
+  // ===================
+
+  // Asset Registers - Category containers
+  assetRegisters: defineTable({
+    orgId: v.id("orgs"),
+    projectId: v.optional(v.id("projects")), // null = org-wide register
+    name: v.string(),
+    description: v.optional(v.string()),
+    assetType: assetType,
+    isActive: v.boolean(),
+    createdBy: v.id("workers"),
+    ...timestamps,
+  })
+    .index("by_org", ["orgId"])
+    .index("by_project", ["projectId"])
+    .index("by_org_type", ["orgId", "assetType"]),
+
+  // Assets - Individual physical items
+  assets: defineTable({
+    orgId: v.id("orgs"),
+    projectId: v.optional(v.id("projects")), // null = org-wide asset
+    registerId: v.id("assetRegisters"),
+    itemId: v.string(), // Auto-generated per org (ASSET-001)
+    assetType: assetType,
+    name: v.string(),
+    description: v.optional(v.string()),
+    make: v.optional(v.string()),
+    model: v.optional(v.string()),
+    serialNumber: v.optional(v.string()),
+    // Vehicle-specific
+    registrationNumber: v.optional(v.string()), // Rego
+    vin: v.optional(v.string()), // Vehicle Identification Number
+    year: v.optional(v.number()),
+    odometerKm: v.optional(v.number()),
+    odometerHours: v.optional(v.number()),
+    lastPrestartAt: v.optional(v.number()),
+    // General
+    purchaseDate: v.optional(v.number()),
+    purchasePrice: v.optional(v.number()), // In cents
+    imageId: v.optional(v.id("_storage")),
+    qrCode: v.optional(v.string()), // Freeform QR code
+    status: assetStatus,
+    // Service tracking
+    nextServiceDue: v.optional(v.number()),
+    // Metadata
+    metadata: v.optional(v.any()),
+    createdBy: v.id("workers"),
+    ...timestamps,
+  })
+    .index("by_org", ["orgId"])
+    .index("by_project", ["projectId"])
+    .index("by_register", ["registerId"])
+    .index("by_itemId", ["orgId", "itemId"])
+    .index("by_qrCode", ["qrCode"])
+    .index("by_status", ["orgId", "status"])
+    .index("by_rego", ["registrationNumber"]),
+
+  // Asset Allocations - Unified bookings + assignments
+  assetAllocations: defineTable({
+    assetId: v.id("assets"),
+    projectId: v.optional(v.id("projects")),
+    allocationType: allocationType,
+    // Assigned to (worker or org)
+    workerId: v.optional(v.id("workers")),
+    orgId: v.optional(v.id("orgs")),
+    // Timing
+    startDate: v.number(),
+    endDate: v.optional(v.number()),
+    allocatedAt: v.number(),
+    returnedAt: v.optional(v.number()),
+    // Status
+    status: allocationStatus,
+    notes: v.optional(v.string()),
+    // Created by
+    createdBy: v.id("workers"),
+    metadata: v.optional(v.any()),
+    ...timestamps,
+  })
+    .index("by_asset", ["assetId"])
+    .index("by_project", ["projectId"])
+    .index("by_worker", ["workerId"])
+    .index("by_status", ["assetId", "status"])
+    .index("by_dates", ["assetId", "startDate", "endDate"]),
+
+  // Asset Requests - Booking/transfer/maintenance approval
+  assetRequests: defineTable({
+    assetId: v.id("assets"),
+    projectId: v.id("projects"),
+    requestedByWorkerId: v.id("workers"),
+    requestType: assetRequestType,
+    // Timing
+    requestedStartDate: v.optional(v.number()),
+    requestedEndDate: v.optional(v.number()),
+    // Status
+    status: assetRequestStatus,
+    approvedBy: v.optional(v.id("workers")),
+    approvedAt: v.optional(v.number()),
+    rejectionReason: v.optional(v.string()),
+    // Link to allocation (on approval)
+    allocationId: v.optional(v.id("assetAllocations")),
+    notes: v.optional(v.string()),
+    metadata: v.optional(v.any()),
+    ...timestamps,
+  })
+    .index("by_asset", ["assetId"])
+    .index("by_project", ["projectId"])
+    .index("by_requester", ["requestedByWorkerId"])
+    .index("by_status", ["projectId", "status"]),
+
+  // Asset Checklist Configs - Inspection + prestart configuration
+  assetChecklistConfigs: defineTable({
+    assetId: v.id("assets"),
+    checklistTemplateId: v.id("checklistTemplates"),
+    purpose: checklistPurpose,
+    frequency: checklistFrequency,
+    isActive: v.boolean(),
+    lastCompletedAt: v.optional(v.number()),
+    nextDueAt: v.optional(v.number()),
+    createdBy: v.id("workers"),
+    metadata: v.optional(v.any()),
+    ...timestamps,
+  })
+    .index("by_asset", ["assetId"])
+    .index("by_template", ["checklistTemplateId"])
+    .index("by_asset_purpose", ["assetId", "purpose"]),
+
+  // Asset Service Logs - Maintenance/repair records
+  assetServiceLogs: defineTable({
+    assetId: v.id("assets"),
+    projectId: v.optional(v.id("projects")),
+    serviceType: serviceType,
+    description: v.string(),
+    performedBy: v.string(), // Name/company of performer
+    performedByWorkerId: v.optional(v.id("workers")),
+    performedAt: v.number(),
+    cost: v.optional(v.number()), // In cents
+    nextServiceDue: v.optional(v.number()),
+    attachmentIds: v.optional(v.array(v.id("_storage"))),
+    metadata: v.optional(v.any()),
+    createdBy: v.id("workers"),
+    createdAt: v.number(),
+  })
+    .index("by_asset", ["assetId"])
+    .index("by_project", ["projectId"])
+    .index("by_type", ["assetId", "serviceType"])
+    .index("by_date", ["assetId", "performedAt"]),
+
+  // ===================
+  // R3: ASSET OPERATIONS MODULE
+  // ===================
+
+  // Prestart Submissions - Completed prestart checks
+  prestartSubmissions: defineTable({
+    assetId: v.id("assets"),
+    projectId: v.id("projects"),
+    // Dual template support (legacy + new)
+    templateId: v.optional(v.string()), // Legacy template ID
+    checklistInstanceId: v.optional(v.id("checklistInstances")), // New checklist instance
+    // Performer
+    performedByWorkerId: v.id("workers"),
+    performedAt: v.number(),
+    // Responses and photos
+    responses: v.optional(v.any()), // Field responses
+    photoIds: v.optional(v.array(v.id("_storage"))),
+    // Odometer tracking
+    odometerKm: v.optional(v.number()),
+    odometerHours: v.optional(v.number()),
+    // Result
+    passed: v.boolean(),
+    issues: v.optional(v.array(v.string())), // List of failed items
+    // Linked defects/actions (if failed)
+    linkedDefectIds: v.optional(v.array(v.id("defects"))),
+    linkedActionIds: v.optional(v.array(v.id("actionItems"))),
+    metadata: v.optional(v.any()),
+    createdAt: v.number(),
+  })
+    .index("by_asset", ["assetId"])
+    .index("by_project", ["projectId"])
+    .index("by_project_date", ["projectId", "performedAt"])
+    .index("by_asset_status", ["assetId", "passed"])
+    .index("by_performer", ["performedByWorkerId"]),
 });

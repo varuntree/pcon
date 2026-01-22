@@ -1,865 +1,641 @@
 # Implementation Plan
 
-## Current Release: R2 - Safety Core
+## Current State Summary
 
-### Status
-- **Phase**: R2 Safety Core [COMPLETE]
-- **Last Updated**: 2026-01-22
-- **Depends On**: R1 Foundation [COMPLETE] (tag 0.0.3)
-- **Tags**: 0.0.4 (Phase 1 Schema), 0.0.5 (SWMS+Cert APIs), 0.0.6 (All Backend APIs), 0.0.7 (Hooks), 0.0.8 (Shared Components), 0.0.9 (Core Pages + Navigation), 0.0.10 (Public Flows)
-- **Spec Sources**: safety-swms.md, safety-permits.md, safety-incidents.md, safety-inductions.md, safety-compliance.md, _reference/schema.md
+**Completed (R1-R2):**
+- R1 Foundation: orgs, projects, workers, trades, workPackages, workerAssignments (6 tables)
+- R2 Safety Core: SWMS, permits, incidents, inductions, certifications (15 tables, all pages complete)
+- Total: 21 tables in schema.ts, all with backend APIs, hooks, and pages
 
----
-
-## R1 Foundation - VERIFIED COMPLETE
-
-All 8 phases verified complete via codebase audit (2026-01-22):
-- [x] Phase 1: Next.js 15.5.9 + Convex + ShadCN + TypeScript strict
-- [x] Phase 2: 6 foundation tables (orgs, projects, workers, trades, workPackages, workerAssignments)
-- [x] Phase 3: Convex API functions (CRU for all entities - no delete)
-- [x] Phase 4: AppShell (IconRail + Sidebar + Main pane)
-- [x] Phase 5: 18 ShadCN primitives + StatusBadge + constants
-- [x] Phase 6: Core pages (Dashboard, Projects, Workers, Settings stub)
-- [x] Phase 7: Demo auth context + OrgSelector + ProjectSelector
-- [x] Phase 8: Hooks layer with demo data fallback
-
-**Verified Artifacts** (code-confirmed):
-- `convex/schema.ts`: 6 tables with correct indexes (by_org, by_project, by_status, etc.)
-- `convex/*.ts`: 7 backend files - orgs (5 funcs), projects (6), workers (6), trades (6), workPackages (5), workerAssignments (5), seed (1)
-- `convex/lib/`: errors.ts (throwNotFound, throwValidation, throwUnauthorized, throwConflict), time.ts (now, timestamps, updatedAt)
-- `src/components/ui/`: 18 ShadCN components + status-badge.tsx
-- `src/components/layout/`: 7 layout components
-- `src/app/(platform)/`: Dashboard, Projects list/detail, Workers list, Settings stub
-- `src/hooks/`: 5 hooks with DEMO_* fallback arrays
-- `src/lib/`: constants.ts (STATUS_CONFIG, PRIORITY_CONFIG), utils.ts (cn, formatDate, formatDateTime, formatRelativeTime)
-
-**Known Gaps from R1** (carried forward):
-1. ~~Dashboard hardcoded stats~~ - RESOLVED (live stats via useOrgSafetyStats)
-2. Settings stub at `app/(platform)/orgs/[orgId]/settings/page.tsx:27`
-3. Chief AI placeholder in sidebar and dashboard
-4. No delete mutations (CRU not CRUD)
-5. No photo/file upload flow (`_storage` exists but unused)
+**Tags:**
+- 0.0.3: R1 Foundation complete
+- 0.0.4: R2 Phase 1 Schema
+- 0.0.5: R2 SWMS+Cert APIs
+- 0.0.6: R2 All Backend APIs
+- 0.0.7: R2 Hooks
+- 0.0.8: R2 Shared Components
+- 0.0.9: R2 Core Pages + Navigation
+- 0.0.10: R2 Public Flows
 
 ---
 
-## Release Summary
+## R3: Quality + Assets
 
-- **Release**: R2 - Safety Core
-- **What's included**:
-  - SWMS: templates (org), documents (project), signatures (internal+external), assignments, public signing
-  - Permits: types (org), instances (9-state lifecycle), approval workflow
-  - Incidents: reports, investigation tracking, corrective actions
-  - Inductions: types, invites (share codes), completions (5-step wizard)
-  - Shared: certificationTypes, competencyRecords (worker certifications)
+**Goal:** Build pages for already-defined schema tables (12 tables exist, 0 pages)
 
-- **Why this release**:
-  - Safety is non-negotiable in construction - highest user priority
-  - PM journey: Morning sees SWMS needing approval, permits expiring, respond to incidents
-  - Worker journey: Sign SWMS before work, report incidents, complete induction
-  - Enables compliance tracking baseline before AI (R5)
-  - Thin horizontal slice: each module has create/view/sign lifecycle complete
+**Depends on:** R2 Complete (tag 0.0.10)
 
-- **Dependencies**:
-  - R1 Foundation (workers, projects, orgs tables)
-  - No AI orchestration (R5)
-  - No mobile-specific app (R4), but web forms work on mobile
-  - No PDF generation (defer to R3)
+### Schema Changes (0 new tables, minor updates)
+- [ ] Add `plantInductionCompletions` table (M) - tracks plant-specific induction completions
+- [ ] Link `checklistTemplateId` in permitTypes, incidentTemplates (S)
 
----
+### Backend APIs
 
-## Schema Gap Analysis
+**Quality Checklists**
+- [ ] `checklistTemplates.ts` - listByOrg, listByProject, listActive, get, create, update, clone, deactivate (M)
+- [ ] `checklistInstances.ts` - listByProject, listByAssignee, listByStatus, get, create, updateResponses, complete, cancel (M)
 
-**Current (6 tables)**: orgs, projects, workers, trades, workPackages, workerAssignments
+**Quality Defects**
+- [ ] `defects.ts` - listByProject, listByStatus, listByAssignee, get, create, update, resolve, close, addComment (M)
+- [ ] `defectPhotos.ts` - listByDefect, create, delete, updateMarkup (S)
 
-**R2 Target (+15 tables = 21 total)**:
-| Domain | Tables | Status |
-|--------|--------|--------|
-| Shared Safety | certificationTypes, competencyRecords | Missing |
-| SWMS | swmsTemplates, swmsDocuments, swmsSignatures, swmsAssignments | Missing |
-| Permits | permitTypes, permitTypeAssignments, permitInstances | Missing |
-| Incidents | incidentTemplates, incidentTemplateAssignments, incidentReports | Missing |
-| Inductions | inductionTypes, inductionInvites, inductionCompletions | Missing |
+**Action Items**
+- [ ] `actionItems.ts` - listByProject, listByAssignee, listByStatus, listBySource, get, create, update, complete, cancel, addComment (M)
 
-**Full Platform (52 tables per spec)**: 31 tables deferred to R3-R5
+**Asset Management**
+- [ ] `assetRegisters.ts` - listByOrg, listByProject, get, create, update, deactivate (S)
+- [ ] `assets.ts` - listByRegister, listByProject, listByStatus, get, create, update, updateStatus (M)
+- [ ] `assetAllocations.ts` - listByAsset, listByWorker, listActive, get, create, return, cancel (M)
+- [ ] `assetRequests.ts` - listByProject, listByStatus, get, create, approve, reject, cancel (S)
+- [ ] `assetChecklistConfigs.ts` - listByAsset, get, create, update, deactivate (S)
+- [ ] `assetServiceLogs.ts` - listByAsset, get, create (S)
+- [ ] `prestartSubmissions.ts` - listByAsset, listByProject, get, submit, evaluate (M)
 
----
+### Hooks Layer
+- [ ] `use-checklist-templates.ts` (S)
+- [ ] `use-checklist-instances.ts` (S)
+- [ ] `use-defects.ts` (S)
+- [ ] `use-action-items.ts` (S)
+- [ ] `use-asset-registers.ts` (S)
+- [ ] `use-assets.ts` (S)
+- [ ] `use-asset-allocations.ts` (S)
+- [ ] `use-prestart-submissions.ts` (S)
 
-## Implementation Priority
+### Pages
 
-### Phase Order & Rationale
+**Quality Module**
+- [ ] PAGE-030: Checklist templates list `/orgs/[orgId]/checklist-templates` (M)
+- [ ] PAGE-031: Checklist template editor (16 field types, sections, conditional logic) (L)
+- [ ] PAGE-032: Project checklists list `/orgs/[orgId]/projects/[projectId]/checklists` (S)
+- [ ] PAGE-033: Checklist instance conductor (dynamic fields, progress tracking) (L)
+- [ ] PAGE-034: Defects list `/orgs/[orgId]/projects/[projectId]/defects` (S)
+- [ ] PAGE-035: Defect detail view (photos, comments, lifecycle actions) (M)
+- [ ] PAGE-036: Defect creation form (location, photos, markup) (M)
+- [ ] PAGE-037: Action items list `/orgs/[orgId]/projects/[projectId]/actions` (S)
+- [ ] PAGE-038: Action item detail view (M)
 
-| Order | Phase | Effort | Rationale |
-|-------|-------|--------|-----------|
-| 1 | Phase 1: Schema | M | Foundation - all other phases depend on tables |
-| 2 | Phase 2: Backend | L | APIs required before UI can function |
-| 3 | Phase 3: Hooks | S | Bridge layer - small effort, unlocks UI work |
-| 4 | Phase 4: Shared Components | M | Reusable UI - build once, use across pages |
-| 5 | Phase 5: Core Pages | L | Main PM workflows - high value |
-| 6 | Phase 6: Public Flows | M | Worker-facing - enables external signing |
-| 7 | Phase 7: Navigation | S | Final wiring - quick integration |
+**Asset Module**
+- [ ] PAGE-039: Asset registers list `/orgs/[orgId]/asset-registers` (S)
+- [ ] PAGE-040: Register detail (assets list, stats) (M)
+- [ ] PAGE-041: Asset creation/edit form (M)
+- [ ] PAGE-042: Asset detail view (status, history, allocations, service logs) (L)
+- [ ] PAGE-043: Asset allocations list `/orgs/[orgId]/projects/[projectId]/plant` (M)
+- [ ] PAGE-044: Asset request form (booking/transfer/maintenance) (M)
+- [ ] PAGE-045: Prestart submission form (checklist + odometer + photos) (L)
+- [ ] PAGE-046: Prestart result screen (pass/fail, auto-defects) (M)
 
-**Effort Key**: S = 1-2 days, M = 3-5 days, L = 5-10 days
+### Public Flows
+- [ ] PUBLIC-008: `/w/prestart/[qrCode]` - Asset prestart via QR (L)
+- [ ] PUBLIC-009: `/w/asset/[qrCode]` - Asset view via QR (read-only) (S)
 
----
+### Navigation Updates
+- [ ] NAV-004: Add Quality group to sidebar (Checklists, Defects, Actions)
+- [ ] NAV-005: Add Assets group to sidebar (Registers, Plant/Allocations)
+- [ ] NAV-006: Update project detail page with Quality and Assets sections
 
-## Critical Path
+### Technical Debt
+- [ ] Configure Convex Storage for photo uploads (M)
+- [ ] Implement photo compression on upload (S)
+- [ ] Add delete mutations across entities (M)
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        PHASE 1: SCHEMA                          │
-│  certificationTypes → competencyRecords (prereq for inductions) │
-│  swmsTemplates → swmsDocuments → swmsSignatures/swmsAssignments │
-│  permitTypes → permitTypeAssignments → permitInstances          │
-│  incidentTemplates → incidentTemplateAssignments → incidentReports │
-│  inductionTypes → inductionInvites → inductionCompletions       │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                       PHASE 2: BACKEND                          │
-│  certificationTypes.ts + competencyRecords.ts FIRST             │
-│  Then SWMS APIs (templates → documents → signatures → public)   │
-│  Then Permits APIs (types → instances)                          │
-│  Then Incidents APIs (templates → reports)                      │
-│  Then Inductions APIs (types → invites → completions → public)  │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        PHASE 3: HOOKS                           │
-│  use-certifications → use-swms-* → use-permit-* → use-incident-*│
-│  → use-induction-*                                              │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 4: SHARED COMPONENTS                   │
-│  SignatureCanvas BLOCKS: SWMS signing, Induction signature      │
-│  SWMSSectionsViewer BLOCKS: SWMS document view, public signing  │
-│  ContentBlockRenderer BLOCKS: Induction wizard                  │
-│  CertUploadField BLOCKS: Induction tickets step                 │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-              ┌───────────────┴───────────────┐
-              ▼                               ▼
-┌─────────────────────────┐     ┌─────────────────────────────────┐
-│    PHASE 5: CORE PAGES  │     │     PHASE 6: PUBLIC FLOWS       │
-│  PM-facing workflows    │     │  External worker signing        │
-│  Internal SWMS/Permits  │     │  Off-site induction wizard      │
-│  Incident management    │     │  Public validation + rate-limit │
-└─────────────────────────┘     └─────────────────────────────────┘
-              │                               │
-              └───────────────┬───────────────┘
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     PHASE 7: NAVIGATION                         │
-│  Sidebar: Safety group (SWMS, Permits, Incidents, Inductions)   │
-│  IconRail: Safety icon                                          │
-│  Project detail: Safety tabs                                    │
-└─────────────────────────────────────────────────────────────────┘
-```
+### Effort Summary
+| Category | S | M | L | Total |
+|----------|---|---|---|-------|
+| Schema | 1 | 1 | 0 | 2 |
+| Backend | 4 | 6 | 0 | 10 |
+| Hooks | 8 | 0 | 0 | 8 |
+| Pages | 4 | 8 | 4 | 16 |
+| Public | 1 | 0 | 1 | 2 |
+| Nav | 3 | 0 | 0 | 3 |
+| Debt | 1 | 2 | 0 | 3 |
+| **Total** | 22 | 17 | 5 | **44 tasks** |
 
-### Key Dependencies (Blocking)
-| Blocker | Blocks | Impact |
-|---------|--------|--------|
-| **SignatureCanvas (UI-018)** | PAGE-012, PUBLIC-003, PUBLIC-007 | 3 pages can't complete |
-| **SWMSSectionsViewer (UI-019)** | PAGE-011, PUBLIC-002 | 2 pages can't complete |
-| **ContentBlockRenderer (UI-024)** | PUBLIC-005, PUBLIC-006 | Induction wizard blocked |
-| **CertUploadField (UI-025)** | PUBLIC-005 (Tickets step) | Induction wizard blocked |
-| **competencyRecords API (API-008)** | Induction completion flow | Cert prereq check blocked |
-
-### Dependency Chains
-- **DB-007 → API-007 → HOOK-013**: Certifications chain (build first)
-- **DB-009,010,11,12 → API-009,10,11,12,13 → PAGE-008-012**: SWMS module chain
-- **UI-018 → PAGE-012, PUBLIC-003, PUBLIC-007**: SignatureCanvas blocks signing
-- **UI-019 → PAGE-011, PUBLIC-002**: SWMSSectionsViewer blocks doc views
-- **PUBLIC-004-007 depend on**: UI-018, UI-022, UI-024, UI-025
+**Estimated Duration:** 3-4 weeks
 
 ---
 
-## User Journey Maps (R2 Scope)
+## R4: Site Operations
 
-### Project Manager Journey
-1. **Morning**: Dashboard shows SWMS pending approval, permits expiring today
-2. **Create SWMS**: From template or scratch, assign to workers
-3. **Approve SWMS**: Review pending_review documents, approve to make active
-4. **Manage permits**: Create permit instance, approve applications, monitor expiry
-5. **View incidents**: See reported incidents, assign investigator, track corrective actions
-6. **Send induction invites**: Generate share codes for off-site completion
+**Goal:** Add missing schema + pages for daily site operations
 
-### Field Worker Journey
-1. **Sign SWMS**: View assigned SWMS, acknowledge hazards/controls/PPE, draw signature
-2. **Report incident**: Quick form (description, location, severity, photos)
-3. **Complete induction**: 5-step wizard (Profile, Emergency, Content, Tickets, Signature)
-4. **Public SWMS signing**: External workers via `/w/swms/[shareCode]`
-5. **Public induction**: Pre-arrival via `/w/induct/[shareCode]`
+**Depends on:** R3 Complete
 
-### Business Owner Journey (Minimal)
-1. **View compliance**: SWMS signed per project, incidents reported
-2. **No cross-project analytics** (defer to R5)
+### Schema Changes (11 new tables)
 
----
+**Schedule**
+- [ ] `scheduledTasks` - projectId, phaseId, name, startDate, endDate, status, assignedOrgId, progress, confirmations[] (M)
+- [ ] `scheduleDependencies` - fromTaskId, toTaskId, dependencyType, lag (S)
+- [ ] `schedulePhases` - projectId, name, startDate, endDate, order (S)
+- [ ] `scheduleShares` - projectId, shareType (view_only|confirm), shareCode, targetOrgId, isActive, expiresAt (S)
 
-## Prioritized Tasks
+**Daily Operations**
+- [ ] `diaries` - projectId, date, weather, temperature, workDescription, progress, issues, visitors, attachmentIds, aiSummary (M)
+- [ ] `briefings` - projectId, title, description, date, conductedBy, attendeeWorkerIds (S)
+- [ ] `alerts` - projectId, kind (weather|change|safety|other), message, requiresAck, status, sentAt (S)
 
-### Phase 1: Schema (15 tables) [Effort: M] ✅ COMPLETE (tag 0.0.4)
+**Toolbox Meetings**
+- [ ] `toolboxMeetings` - projectId, title, date, startTime, location, meetingType, conductedBy, linkedSwmsIds, qrCode, status (M)
+- [ ] `toolboxAttendance` - toolboxMeetingId, workerId, workerName, workerCompany, attendanceType, signatureData, signedAt (S)
 
-**Shared Safety Tables**
-- [x] **DB-007**: `certificationTypes` - org-level cert definitions (license|ticket|training|medical|other), validityDays, expiryWarningDays
-- [x] **DB-008**: `competencyRecords` - worker certifications with verification workflow, photo storage
+**Site Access**
+- [ ] `attendanceLogs` - projectId, workerId, date, signOnTime, signOffTime, entryType, visitorDetails, formResponses, prestartNoticeAck, swmsAcknowledgedIds, viaQr (M)
+- [ ] `signOnConfigs` - projectId, name, isDefault, visitorAllowed, deliveryAllowed, prestartNoticeId, customFields (S)
+- [ ] `prestartNotices` - projectId, title, content, effectiveDate, expiresAt, requiresAcknowledgement, isActive (S)
 
-**SWMS Tables**
-- [x] **DB-009**: `swmsTemplates` - org-level templates, 13 section types, version tracking
-- [x] **DB-010**: `swmsDocuments` - project-level instances, status (draft|pending_review|approved|expired|archived), shareCode
-- [x] **DB-011**: `swmsSignatures` - internal (workerId) + external (workerName, workerCompany), signatureData (base64 PNG)
-- [x] **DB-012**: `swmsAssignments` - worker-SWMS junction, acknowledgedAt tracking
+### Backend APIs
 
-**Permit Tables**
-- [x] **DB-013**: `permitTypes` - org-level templates, requiredFields, defaultValidityHours, riskLevel
-- [x] **DB-014**: `permitTypeAssignments` - enable types per project, defaultApproverId
-- [x] **DB-015**: `permitInstances` - 9-state lifecycle, formData, approval signatures, validFrom/validTo
+**Schedule**
+- [ ] `scheduledTasks.ts` - listByProject, listByPhase, listByOrg, get, create, update, updateStatus, addConfirmation (M)
+- [ ] `scheduleDependencies.ts` - listByTask, create, delete (S)
+- [ ] `schedulePhases.ts` - listByProject, get, create, update, reorder, delete (S)
+- [ ] `scheduleShares.ts` - listByProject, get, getByShareCode, create, deactivate (S)
+- [ ] `schedulePublic.ts` - getByShareCode (no auth), confirmTask (M)
 
-**Incident Tables**
-- [x] **DB-016**: `incidentTemplates` - org-level investigation templates
-- [x] **DB-017**: `incidentTemplateAssignments` - enable templates per project
-- [x] **DB-018**: `incidentReports` - type, severity, status, involvedWorkers, witnesses, correctiveActions
+**Daily Ops**
+- [ ] `diaries.ts` - listByProject, listByDate, get, create, update, archive (M)
+- [ ] `briefings.ts` - listByProject, get, create (S)
+- [ ] `alerts.ts` - listByProject, listActive, get, create, send, archive (S)
 
-**Induction Tables**
-- [x] **DB-019**: `inductionTypes` - scope (company|site|task|plant), content blocks (info|video|acknowledgement|upload), validityDays
-- [x] **DB-020**: `inductionInvites` - shareCode, status (pending|awaiting_review|completed), off-site workflow
-- [x] **DB-021**: `inductionCompletions` - 6-state lifecycle, responses, signature (base64, hash), auditLog
+**Toolbox**
+- [ ] `toolboxMeetings.ts` - listByProject, listUpcoming, get, create, update, start, complete, cancel, generateQr (M)
+- [ ] `toolboxAttendance.ts` - listByMeeting, get, signInternal, signExternal (S)
+- [ ] `toolboxPublic.ts` - getByQrCode (no auth), signAttendance (M)
 
-### Phase 2: Backend Functions [Effort: L] ✅ COMPLETE (tags 0.0.5, 0.0.6)
+**Site Access**
+- [ ] `attendanceLogs.ts` - listByProject, listByDate, listByWorker, get, signIn, signOut, createVisitor, createDelivery (M)
+- [ ] `signOnConfigs.ts` - listByProject, get, create, update, setDefault (S)
+- [ ] `prestartNotices.ts` - listByProject, listActive, get, create, update, deactivate (S)
+- [ ] `signOnPublic.ts` - getByCode (no auth), signIn, signOut (M)
 
-**Certification APIs** ✅ (tag 0.0.5)
-- [x] **API-007**: `certificationTypes.ts` - listByOrg, listActive, get, create, update, deactivate
-- [x] **API-008**: `competencyRecords.ts` - listByWorker, listByOrg, get, create, verify, reject, expire, checkValid
+### Hooks Layer
+- [ ] `use-scheduled-tasks.ts` (S)
+- [ ] `use-schedule-phases.ts` (S)
+- [ ] `use-schedule-shares.ts` (S)
+- [ ] `use-diaries.ts` (S)
+- [ ] `use-toolbox-meetings.ts` (S)
+- [ ] `use-attendance-logs.ts` (S)
+- [ ] `use-alerts.ts` (S)
 
-**SWMS APIs** ✅ (tag 0.0.5)
-- [x] **API-009**: `swmsTemplates.ts` - listByOrg, listActive, get, create, update, publish, archive, clone
-- [x] **API-010**: `swmsDocuments.ts` - listByProject, listByStatus, get, getWithSignatures, create, submit, approve, archive, expire
-- [x] **API-011**: `swmsSignatures.ts` - listByDocument, createInternal, createExternal (no update - immutable)
-- [x] **API-012**: `swmsAssignments.ts` - listByDocument, listByWorker, listPendingByWorker, assign, batchAssign, acknowledge
-- [x] **API-013**: `swmsPublic.ts` - getByShareCode (no auth), signExternal, getSignatureCount
+### Pages
 
-**Permit APIs** ✅ (tag 0.0.6)
-- [x] **API-014**: `permitTypes.ts` - listByOrg, listActive, get, create, update, deactivate
-- [x] **API-015**: `permitTypeAssignments.ts` - listByProject, enable, disable, setDefaultApprover
-- [x] **API-016**: `permitInstances.ts` - listByProject, listByStatus, listActive, listByApplicant, get, getWithDetails, create, submit, approve, reject, activate, suspend, resume, close, cancel, expire, listExpiring, listExpired
+**Schedule Module**
+- [ ] PAGE-047: Schedule Gantt view `/orgs/[orgId]/projects/[projectId]/schedule` (L)
+- [ ] PAGE-048: Schedule phase editor (M)
+- [ ] PAGE-049: Task detail/edit modal (M)
+- [ ] PAGE-050: Schedule sharing management (S)
 
-**Incident APIs** ✅ (tag 0.0.6)
-- [x] **API-017**: `incidentTemplates.ts` - listByOrg, listActive, get, create, update, publish, archive, clone
-- [x] **API-018**: `incidentTemplateAssignments.ts` - listByProject, enable, disable, setDefault
-- [x] **API-019**: `incidentReports.ts` - listByProject, listByStatus, get, getWithDetails, create, assignInvestigator, updateInvestigation, addCorrectiveAction, close, reopen
+**Diary Module**
+- [ ] PAGE-051: Site diaries list `/orgs/[orgId]/projects/[projectId]/diaries` (S)
+- [ ] PAGE-052: Diary entry form (weather, progress, photos) (M)
+- [ ] PAGE-053: Diary detail view (M)
 
-**Induction APIs** ✅ (tag 0.0.6)
-- [x] **API-020**: `inductionTypes.ts` - listByOrg, listActive, listByScope, listByProject, get, getWithCertifications, create, update, deactivate, clone
-- [x] **API-021**: `inductionInvites.ts` - listByProject, listByStatus, get, getByShareCode, getWithCompletion, create, deactivate, markAwaitingReview, markCompleted
-- [x] **API-022**: `inductionCompletions.ts` - listByWorker, listByProject, listByStatus, listPendingReview, get, getWithDetails, create, start, updateProgress, submit, approve, returnForRevision, expire, checkWorkerInduction
-- [x] **API-023**: `inductionPublic.ts` - getByShareCode (no auth, enriched with certifications), submitWizard, getCompletionStatus
+**Toolbox Module**
+- [ ] PAGE-054: Toolbox meetings list `/orgs/[orgId]/projects/[projectId]/toolbox` (S)
+- [ ] PAGE-055: Toolbox meeting creation form (M)
+- [ ] PAGE-056: Toolbox meeting detail (attendance list, QR code) (M)
 
-### Phase 3: Hooks Layer [Effort: S] ✅ COMPLETE (tag 0.0.7)
+**Site Access Module**
+- [ ] PAGE-057: Attendance dashboard `/orgs/[orgId]/projects/[projectId]/attendance` (M)
+- [ ] PAGE-058: Sign-on config management (M)
+- [ ] PAGE-059: Prestart notices management (S)
+- [ ] PAGE-060: Alerts management (S)
 
-- [x] **HOOK-005**: `use-swms-templates.ts`
-- [x] **HOOK-006**: `use-swms-documents.ts`
-- [x] **HOOK-007**: `use-swms-signatures.ts` (includes swmsAssignments hooks)
-- [x] **HOOK-008**: `use-permit-types.ts`
-- [x] **HOOK-009**: `use-permit-instances.ts`
-- [x] **HOOK-010**: `use-incident-reports.ts`
-- [x] **HOOK-011**: `use-induction-types.ts`
-- [x] **HOOK-012**: `use-induction-completions.ts`
-- [x] **HOOK-013**: `use-certifications.ts` (certificationTypes + competencyRecords)
+### Public Flows
+- [ ] PUBLIC-010: `/w/signin/[code]` - Site sign-in via QR (worker/visitor/delivery tabs) (L)
+- [ ] PUBLIC-011: `/w/toolbox/[qrCode]` - Toolbox attendance via QR (M)
+- [ ] PUBLIC-012: `/schedule/view/[shareCode]` - Schedule view (view-only mode) (M)
+- [ ] PUBLIC-013: `/schedule/confirm/[shareCode]` - Schedule confirmation (subcontractor) (M)
 
-### Phase 4: Shared Components [Effort: M] ✅ COMPLETE (tag 0.0.8)
+### Navigation Updates
+- [ ] NAV-007: Add Operations group to sidebar (Schedule, Diaries, Toolbox, Attendance, Alerts)
+- [ ] NAV-008: Update project detail page with Operations section
 
-**Safety UI Components**
-- [x] **UI-018**: SignatureCanvas (300x150, touch/mouse, export PNG)
-- [x] **UI-019**: SWMSSectionsViewer (collapsible 13 sections)
-- [x] **UI-020**: PermitStatusBadge (9 states, color-coded)
-- [x] **UI-021**: IncidentSeverityBadge (low|medium|high|critical)
-- [x] **UI-022**: InductionStepIndicator (5 steps)
-- [x] **UI-023**: AcknowledgementCheckboxes (SWMS 3 checkboxes)
-- [x] **UI-024**: ContentBlockRenderer (4 block types)
-- [x] **UI-025**: CertUploadField (front/back photos)
+### Effort Summary
+| Category | S | M | L | Total |
+|----------|---|---|---|-------|
+| Schema | 7 | 4 | 0 | 11 |
+| Backend | 7 | 8 | 0 | 15 |
+| Hooks | 7 | 0 | 0 | 7 |
+| Pages | 5 | 8 | 1 | 14 |
+| Public | 0 | 3 | 1 | 4 |
+| Nav | 2 | 0 | 0 | 2 |
+| **Total** | 28 | 23 | 2 | **53 tasks** |
 
-### Phase 5: Core Pages [Effort: L] ✅ COMPLETE (tag 0.0.9)
-
-**Dashboard Enhancements**
-- [x] **PAGE-007**: Update dashboard with safety stats (pending SWMS, expiring permits, open incidents) ✅ Complete - both project dashboard (via `safety-modules-card.tsx`) and org dashboard (via `useOrgSafetyStats` hook)
-
-**SWMS Module**
-- [x] **PAGE-008**: SWMS templates list (`/orgs/[orgId]/swms-templates`) ✅
-- [x] **PAGE-009**: SWMS template editor (multi-step wizard) ✅
-- [x] **PAGE-010**: SWMS documents list (`/orgs/[orgId]/projects/[projectId]/swms`) ✅
-- [x] **PAGE-011**: SWMS document viewer/editor ✅
-- [x] **PAGE-012**: SWMS signing flow (internal worker) ✅
-
-**Permits Module**
-- [x] **PAGE-013**: Permit types list (`/orgs/[orgId]/permit-types`) ✅
-- [x] **PAGE-014**: Permit instances list (`/orgs/[orgId]/projects/[projectId]/permits`) ✅
-- [x] **PAGE-015**: Permit application form ✅
-- [x] **PAGE-016**: Permit detail view with lifecycle actions ✅
-
-**Incidents Module**
-- [x] **PAGE-017**: Incident reports list (`/orgs/[orgId]/projects/[projectId]/incidents`) ✅
-- [x] **PAGE-018**: Incident report form ✅
-- [x] **PAGE-019**: Incident detail view with investigation panel ✅
-
-**Inductions Module**
-- [x] **PAGE-020**: Induction types list (`/orgs/[orgId]/induction-types`) ✅
-- [x] **PAGE-021**: Induction invites list (`/orgs/[orgId]/projects/[projectId]/inductions`) ✅
-- [x] **PAGE-022**: Induction completions list ✅ (integrated in PAGE-021 with tabs)
-
-**Additional Pages Implemented**
-- [x] Certifications list page (`/orgs/[orgId]/certifications`)
-- [x] Incident templates list page (`/orgs/[orgId]/incident-templates`)
-- [x] Safety overview page (`/orgs/[orgId]/safety`)
-- [x] Project inductions list page (`/orgs/[orgId]/projects/[projectId]/inductions`)
-
-### Phase 6: Public Flows [Effort: M] ✅ COMPLETE (tag 0.0.10)
-
-**Public SWMS Signing**
-- [x] **PUBLIC-001**: `app/(public)/w/swms/[shareCode]/page.tsx` - external SWMS signing ✅
-- [x] **PUBLIC-002**: SWMS sections viewer (uses existing SWMSSectionsViewer) ✅
-- [x] **PUBLIC-003**: External signature form (name, company, SignatureCanvas, AcknowledgementCheckboxes) ✅
-
-**Public Induction Wizard**
-- [x] **PUBLIC-004**: `app/(public)/w/induct/[shareCode]/page.tsx` - off-site induction ✅
-- [x] **PUBLIC-005**: 5-step wizard (uses existing InductionStepIndicator + useInductionSteps) ✅
-- [x] **PUBLIC-006**: ContentBlockRenderer (uses existing component) ✅
-- [x] **PUBLIC-007**: SignatureCanvas (uses existing component) ✅
-
-### Phase 7: Navigation Updates [Effort: S] ✅ COMPLETE (tag 0.0.9)
-
-- [x] **NAV-001**: Add Safety group to sidebar (SWMS, Permits, Incidents, Inductions) ✅
-- [x] **NAV-002**: Add Shield icon to icon-rail ✅
-- [x] **NAV-003**: Update project detail page with Safety Management section ✅
+**Estimated Duration:** 4-5 weeks
 
 ---
 
-## Task Summary
+## R5: Documents + Communications
 
-| Phase | Tasks | Effort | Status |
-|-------|-------|--------|--------|
-| 1. Schema | 15 | M | ✅ Complete (0.0.4) |
-| 2. Backend | 17 | L | ✅ Complete (0.0.5, 0.0.6) |
-| 3. Hooks | 9 | S | ✅ Complete (0.0.7) |
-| 4. Shared Components | 8 | M | ✅ Complete (0.0.8) |
-| 5. Core Pages | 20 | L | ✅ Complete (0.0.9) |
-| 6. Public Flows | 7 | M | ✅ Complete (0.0.10) |
-| 7. Navigation | 3 | S | ✅ Complete (0.0.9) |
-| **Total** | **79** | | **ALL COMPLETE** |
+**Goal:** Document management (files stored in Convex, Claude reads directly) + notification system
 
----
+**Depends on:** R4 Complete
 
-## Sprint Schedule (Recommended)
+### Schema Changes (8 new tables)
 
-### Sprint 1: Foundation (Days 1-5)
-**Goal**: All 15 R2 tables + certification APIs
+**Documents**
+- [ ] `sourceDocuments` - projectId?, orgId?, mediaFileId, docType, title, folderId, version, previousVersionId, linkedFromOrgDocId?, uploadLinkId?, annotationData, drawing metadata fields, tags[] (M)
+- [ ] `documentEntityLinks` - documentId, entityTable, entityId, linkType (S)
+- [ ] `documentFolders` - orgId?, projectId?, name, parentFolderId (S)
+- [ ] `documentUploadLinks` - projectId, folderId?, shareCode, label, description, isActive, expiresAt, usageCount, maxUses, createdBy (S)
+- [ ] `mediaFiles` - orgId?, projectId?, storageId, fileName, mimeType, sizeBytes, kind?, category?, caption?, takenAt?, linkedEntityType?, linkedEntityId (M)
 
-| Day | Tasks | Output |
-|-----|-------|--------|
-| 1 | DB-007, DB-008 | certificationTypes, competencyRecords tables |
-| 2 | DB-009, DB-010, DB-011, DB-012 | SWMS tables (4) |
-| 3 | DB-013, DB-014, DB-015, DB-016, DB-017, DB-018 | Permits (3) + Incidents (3) |
-| 4 | DB-019, DB-020, DB-021 | Inductions (3) |
-| 5 | API-007, API-008 | Certification backend funcs |
+**Communications**
+- [ ] `notifications` - userId, type, title, message, entityType, entityId, isRead, readAt, metadata (M)
+- [ ] `notificationPreferences` - userId, emailEnabled, pushEnabled, preferences, metadata (S)
+- [ ] `communications` - projectId, subject, message, sentBy, sentAt, attachmentIds[], sourceType, sourceId (M)
+- [ ] `communicationRecipients` - communicationId, workerId, status, deliveredAt, readAt (S)
 
-### Sprint 2: SWMS Backend + Core Components (Days 6-12)
-**Goal**: SWMS fully functional backend + critical UI components
+### Backend APIs
 
-| Day | Tasks | Output |
-|-----|-------|--------|
-| 6-7 | API-009, API-010 | swmsTemplates.ts, swmsDocuments.ts |
-| 8 | API-011, API-012, API-013 | swmsSignatures.ts, swmsAssignments.ts, swmsPublic.ts |
-| 9-10 | UI-018 | SignatureCanvas (critical blocker) |
-| 11 | UI-019, UI-023 | SWMSSectionsViewer, AcknowledgementCheckboxes |
-| 12 | HOOK-005, HOOK-006, HOOK-007, HOOK-013 | SWMS + cert hooks |
+**Documents**
+- [ ] `sourceDocuments.ts` - listByProject, listByFolder, listVersions, search (title/tags), get, create, createVersion, promoteToDrawing, updateAnnotations (M)
+- [ ] `documentEntityLinks.ts` - listByDocument, listByEntity, create, delete (S)
+- [ ] `documentFolders.ts` - listByProject, listByOrg, get, create, update, delete (S)
+- [ ] `documentUploadLinks.ts` - listByProject, get, getByShareCode, create, deactivate, incrementUsage (S)
+- [ ] `documentsPublic.ts` - getUploadLinkByCode (no auth), uploadViaLink (M)
+- [ ] `mediaFiles.ts` - get, create, delete, generateUploadUrl, getUrl (M)
 
-### Sprint 3: SWMS Pages + Public Flow (Days 13-18)
-**Goal**: Complete SWMS module end-to-end
+**Communications**
+- [ ] `notifications.ts` - listByUser, listUnread, get, create, markRead, markAllRead (M)
+- [ ] `notificationPreferences.ts` - get, update (S)
+- [ ] `communications.ts` - listByProject, listBySender, get, create (M)
+- [ ] `communicationRecipients.ts` - listByCommunication, listByWorker, updateStatus (S)
 
-| Day | Tasks | Output |
-|-----|-------|--------|
-| 13-14 | PAGE-008, PAGE-009 | SWMS templates list + editor |
-| 15 | PAGE-010, PAGE-011 | SWMS documents list + viewer |
-| 16 | PAGE-012 | SWMS internal signing flow |
-| 17-18 | PUBLIC-001, PUBLIC-002, PUBLIC-003 | Public SWMS signing |
+### Hooks Layer
+- [ ] `use-source-documents.ts` (S)
+- [ ] `use-document-folders.ts` (S)
+- [ ] `use-document-upload-links.ts` (S)
+- [ ] `use-media-files.ts` (S)
+- [ ] `use-notifications.ts` (S)
+- [ ] `use-communications.ts` (S)
 
-### Sprint 4: Permits + Incidents (Days 19-26)
-**Goal**: Complete permits and incidents modules
+### Pages
 
-| Day | Tasks | Output |
-|-----|-------|--------|
-| 19-20 | API-014, API-015, API-016 | Permit backend (9-state machine) |
-| 21-22 | API-017, API-018, API-019 | Incident backend |
-| 23 | UI-020, UI-021, HOOK-008, HOOK-009, HOOK-010 | Badges + hooks |
-| 24-25 | PAGE-013, PAGE-014, PAGE-015, PAGE-016 | Permits pages (4) |
-| 26 | PAGE-017, PAGE-018, PAGE-019 | Incidents pages (3) |
+**Documents Module**
+- [ ] PAGE-061: Documents list `/orgs/[orgId]/projects/[projectId]/documents` (M)
+- [ ] PAGE-062: Document detail view (versions, entity links) (M)
+- [ ] PAGE-063: Folder tree navigation (M)
+- [ ] PAGE-064: Document upload form (M)
+- [ ] PAGE-065: Drawings dashboard (discipline/status filters) (M)
+- [ ] PAGE-066: PDF annotation editor (L)
+- [ ] PAGE-067: Upload links management (S)
+- [ ] PAGE-068: Photo gallery `/orgs/[orgId]/projects/[projectId]/photos` (M)
 
-### Sprint 5: Inductions + Navigation (Days 27-35)
-**Goal**: Complete inductions + nav integration
+**Communications Module**
+- [ ] PAGE-069: Notification bell + dropdown (global) (M)
+- [ ] PAGE-070: Notification preferences page (S)
+- [ ] PAGE-071: Communications inbox `/orgs/[orgId]/projects/[projectId]/communications` (M)
+- [ ] PAGE-072: Communication detail view (M)
+- [ ] PAGE-073: Compose message form (M)
 
-| Day | Tasks | Output |
-|-----|-------|--------|
-| 27-28 | API-020, API-021, API-022, API-023 | Induction backend |
-| 29-30 | UI-022, UI-024, UI-025 | InductionStepIndicator, ContentBlockRenderer, CertUploadField |
-| 31 | HOOK-011, HOOK-012 | Induction hooks |
-| 32-33 | PAGE-020, PAGE-021, PAGE-022 | Induction pages (3) |
-| 34-35 | PUBLIC-004, PUBLIC-005, PUBLIC-006, PUBLIC-007 | Public induction wizard |
+### Public Flows
+- [ ] PUBLIC-014: `/w/upload/[shareCode]` - Document upload via QR (M)
 
-### Sprint 6: Integration + Polish (Days 36-38)
-**Goal**: Navigation updates, dashboard, testing
+### Navigation Updates
+- [ ] NAV-009: Add Documents to sidebar
+- [ ] NAV-010: Add global notification bell to header
+- [ ] NAV-011: Add Communications to sidebar
 
-| Day | Tasks | Output |
-|-----|-------|--------|
-| 36 | NAV-001, NAV-002, NAV-003 | Sidebar/IconRail/tabs updates |
-| 37 | PAGE-007 | Dashboard live safety stats |
-| 38 | E2E testing | Acceptance criteria verification |
+### Effort Summary
+| Category | S | M | L | Total |
+|----------|---|---|---|-------|
+| Schema | 4 | 4 | 0 | 8 |
+| Backend | 4 | 6 | 0 | 10 |
+| Hooks | 6 | 0 | 0 | 6 |
+| Pages | 2 | 10 | 1 | 13 |
+| Public | 0 | 1 | 0 | 1 |
+| Nav | 3 | 0 | 0 | 3 |
+| **Total** | 19 | 21 | 1 | **41 tasks** |
 
----
-
-## Acceptance Criteria (R2)
-
-### SWMS Module
-- [ ] PM creates SWMS template with 13 sections
-- [ ] PM creates SWMS document from template
-- [ ] PM approves SWMS (draft -> pending_review -> approved)
-- [ ] Worker signs SWMS (3 acknowledgements + signature)
-- [ ] External worker signs via public link `/w/swms/[shareCode]`
-- [ ] Signatures immutable (audit trail)
-
-### Permits Module
-- [ ] PM creates permit type with requiredFields
-- [ ] Worker applies for permit (draft -> submitted)
-- [ ] PM approves/rejects permit
-- [ ] Permit lifecycle: approved -> active -> closed
-- [ ] Permit auto-expires at validTo
-
-### Incidents Module
-- [ ] Worker reports incident (type, severity, description, photos)
-- [ ] PM views incident list, assigns investigator
-- [ ] Investigator updates investigation notes, root cause
-- [ ] Corrective actions tracked
-
-### Inductions Module
-- [ ] PM creates induction type with content blocks
-- [ ] PM generates invite link (shareCode)
-- [ ] Worker completes 5-step wizard (Profile, Emergency, Content, Tickets, Signature)
-- [ ] PM reviews and approves completion
-- [ ] Certification prerequisites block completion if expired
-
-### Navigation
-- [ ] Sidebar shows Safety group (SWMS, Permits, Incidents, Inductions)
-- [ ] Dashboard shows safety stats
+**Estimated Duration:** 3-4 weeks
 
 ---
 
-## Key Design Decisions
+## R6: Chief AI
 
-1. **No AI in R2**: All safety workflows manual, AI orchestration in R5
-2. **Public routes under `/w/`**: No auth required, shareCode validation
-3. **Signature storage**: Base64 PNG in signatureData field (not separate mediaFiles)
-4. **Share codes**: 12-char alphanumeric via nanoid
-5. **Permit lifecycle**: 9 states fully implemented, transitions validated
-6. **Incident linking**: Polymorphic pattern - defects/actions link TO incidents, not FROM
+**Goal:** AI orchestration layer - morning briefs, monitoring, proactive actions
+
+**Depends on:** R5 Complete (documents + notifications required)
+
+### Schema Changes (6 new tables)
+
+**Conversations**
+- [ ] `conversations` - orgId, projectId?, userId, title, status, startedAt, lastMessageAt (M)
+- [ ] `conversationMessages` - conversationId, role (user|assistant|system|tool), content, toolCalls?, toolResults?, createdAt (M)
+
+**Execution Tracking**
+- [ ] `executions` - conversationId?, triggeredBy, status (pending|running|completed|failed), startedAt, completedAt, error? (M)
+- [ ] `aiRuns` - executionId, modelId, promptTokens, completionTokens, latencyMs, cost? (S)
+
+**Dashboards**
+- [ ] `dashboards` - orgId, projectId?, name, layout, isDefault, createdBy (S)
+- [ ] `dashboardWidgets` - dashboardId, widgetType, config, position, size (S)
+
+**Activity**
+- [ ] `activityLogs` - orgId, projectId?, entityType, entityId, action, actorId?, actorType (user|chief|system), details, timestamp (M)
+
+### Backend APIs
+
+**Conversations**
+- [ ] `conversations.ts` - listByUser, listByProject, get, create, archive (M)
+- [ ] `conversationMessages.ts` - listByConversation, append (internal) (S)
+
+**AI Orchestration**
+- [ ] `chiefAgent.ts` (action) - processMessage, executeTool, handleToolResult (L)
+- [ ] `chiefTools.ts` - db_read, db_write, undo, ui_navigate, present (L)
+- [ ] `chiefScheduled.ts` (cron) - morningBrief (6am), endOfDaySummary (5pm), expiryMonitor (hourly) (L)
+
+**Execution**
+- [ ] `executions.ts` - listByConversation, get, create, complete, fail (S)
+- [ ] `aiRuns.ts` - create, listByExecution (S)
+
+**Dashboards**
+- [ ] `dashboards.ts` - listByOrg, listByProject, get, create, update, delete, setDefault (M)
+- [ ] `dashboardWidgets.ts` - listByDashboard, create, update, delete, reorder (S)
+
+**Activity**
+- [ ] `activityLogs.ts` - listByProject, listByEntity, create (S)
+
+### Hooks Layer
+- [ ] `use-conversations.ts` (S)
+- [ ] `use-chief-chat.ts` (streaming responses) (M)
+- [ ] `use-dashboards.ts` (S)
+- [ ] `use-activity-logs.ts` (S)
+
+### Pages
+
+**Chief Interface**
+- [ ] PAGE-074: Chief chat panel (sliding pane, streaming) (L)
+- [ ] PAGE-075: Morning brief dashboard (4 sections) (L)
+- [ ] PAGE-076: End-of-day summary view (M)
+- [ ] PAGE-077: Trust progression settings (M)
+
+**Dashboards**
+- [ ] PAGE-078: Dashboard editor (widget grid) (L)
+- [ ] PAGE-079: Widget library (stats, charts, lists) (M)
+
+**Activity**
+- [ ] PAGE-080: Activity feed `/orgs/[orgId]/projects/[projectId]/activity` (M)
+
+### Chief Capabilities
+- [ ] CHIEF-001: Morning brief generation (overnight activity, attention items, drafts, handled) (L)
+- [ ] CHIEF-002: End-of-day summary (outcomes, tomorrow focus, overnight ops) (M)
+- [ ] CHIEF-003: Expiry monitoring (permits, certs, SWMS) (M)
+- [ ] CHIEF-004: Pattern detection (repeated delays, compliance gaps) (L)
+- [ ] CHIEF-005: Defect auto-assignment (trade matching) (M)
+- [ ] CHIEF-006: Follow-up drafting (overdue items) (M)
+- [ ] CHIEF-007: Status query answering (natural language → data) (M)
+
+### Navigation Updates
+- [ ] NAV-012: Replace Chief placeholder with functional chat pane
+- [ ] NAV-013: Add customizable dashboard to org home
+
+### External Integrations
+- [ ] INT-004: Claude API for agent responses (M)
+- [ ] INT-005: Streaming response handling (M)
+
+### Effort Summary
+| Category | S | M | L | Total |
+|----------|---|---|---|-------|
+| Schema | 4 | 3 | 0 | 7 |
+| Backend | 5 | 2 | 3 | 10 |
+| Hooks | 3 | 1 | 0 | 4 |
+| Pages | 0 | 4 | 3 | 7 |
+| Capabilities | 0 | 5 | 2 | 7 |
+| Nav | 2 | 0 | 0 | 2 |
+| Integrations | 0 | 2 | 0 | 2 |
+| **Total** | 14 | 17 | 8 | **39 tasks** |
+
+**Estimated Duration:** 5-6 weeks
 
 ---
 
-## Future Releases (Out of Scope)
+## R7: Mobile + Remaining QR Flows
 
-- **R3: Quality + Assets**
-  - Checklists (16 field types, mobile conductor)
-  - Defects (lifecycle, photos, markup)
-  - Actions (lifecycle, linking)
-  - Assets (registers, prestarts, allocations)
-  - PDF generation for SWMS/Permits/Reports
+**Goal:** 51 mobile screens + 6 remaining QR flows
 
-- **R4: Site Ops + Mobile**
-  - Sign-on/sign-off (attendance, QR)
-  - Diaries, toolbox meetings
-  - Schedule sharing/confirmation
-  - 51 mobile worker screens
-  - 8 QR public flows
+**Depends on:** R6 Complete (Chief integration for mobile)
 
-- **R5: Chief AI**
-  - AI-assisted SWMS creation (subagent orchestration)
-  - Proactive expiry monitoring
-  - Pattern detection across incidents
-  - Compliance automation
-  - Morning briefs, end-of-day summaries
+### Schema Changes (0 new - all tables exist)
+
+### Mobile Infrastructure
+- [ ] MOB-001: WorkerLayout (root with demo context) (M)
+- [ ] MOB-002: DeviceFrame (iPhone-style simulator) (S)
+- [ ] MOB-003: TabBar (7 bottom tabs) (M)
+- [ ] MOB-004: MobileHeader (iOS-style) (S)
+- [ ] MOB-005: MobileCard, MobileEmptyState (S)
+- [ ] MOB-006: PhotoCapture component (camera, multiple, preview) (M)
+- [ ] MOB-007: FieldRenderer (16 field types, conditional logic) (L)
+- [ ] MOB-008: use-demo-worker-context.ts (S)
+
+### Mobile Screens by Tab
+
+**Tab 1: Tasks (1 screen)**
+- [ ] MOB-010: TaskHub (aggregated tasks, project selector) (M)
+
+**Tab 2: Communication (3 screens)**
+- [ ] MOB-011: Communications list (M)
+- [ ] MOB-012: CommunicationDetail (S)
+- [ ] MOB-013: Inbox (notifications) (S)
+
+**Tab 3: Project (9 screens)**
+- [ ] MOB-014: Project ModuleMenu (S)
+- [ ] MOB-015: Actions list (S)
+- [ ] MOB-016: ActionDetail (S)
+- [ ] MOB-017: Schedule view (S)
+- [ ] MOB-018: Documents list (S)
+- [ ] MOB-019: Drawings list (S)
+- [ ] MOB-020: Photos gallery (S)
+- [ ] MOB-021: SiteDiaries list (S)
+- [ ] MOB-022: SiteDiaryDetail (S)
+
+**Tab 4: Safety (18 screens)**
+- [ ] MOB-023: Safety ModuleMenu (S)
+- [ ] MOB-024: SignOn screen (S)
+- [ ] MOB-025: IncidentsList (S)
+- [ ] MOB-026: IncidentDetail (S)
+- [ ] MOB-027: IncidentReport form (M)
+- [ ] MOB-028: SwmsList (S)
+- [ ] MOB-029: SwmsSign (acknowledgments + signature) (M)
+- [ ] MOB-030: PermitsList (S)
+- [ ] MOB-031: PermitApply form (M)
+- [ ] MOB-032: PermitDetail (S)
+- [ ] MOB-033: ToolboxList (S)
+- [ ] MOB-034: ToolboxAttend (signature) (M)
+- [ ] MOB-035: SdsList (S)
+- [ ] MOB-036: SdsDetail (S)
+- [ ] MOB-037: SdsRequests (S)
+- [ ] MOB-038: SdsRequestCreate (S)
+- [ ] MOB-039: InductionsList (S)
+- [ ] MOB-040: InductionDetail (5-step wizard) (L)
+- [ ] MOB-041: Compliance summary (S)
+- [ ] MOB-042: TicketWallet (S)
+- [ ] MOB-043: TicketCard (S)
+- [ ] MOB-044: TicketDetail (S)
+
+**Tab 5: Quality (5 screens)**
+- [ ] MOB-045: Quality ModuleMenu (S)
+- [ ] MOB-046: Checklists list (S)
+- [ ] MOB-047: ChecklistConduct (16 field types, progress) (L)
+- [ ] MOB-048: Defects list (S)
+- [ ] MOB-049: DefectDetail (S)
+
+**Tab 6: Plant (11 screens)**
+- [ ] MOB-050: Plant ModuleMenu (S)
+- [ ] MOB-051: Prestarts list (S)
+- [ ] MOB-052: PrestartDetail (form + odometer) (M)
+- [ ] MOB-053: PrestartResult (pass/fail) (M)
+- [ ] MOB-054: PlantRequests (S)
+- [ ] MOB-055: AssetsList (S)
+- [ ] MOB-056: AssetDetail (S)
+- [ ] MOB-057: AssetView (QR scanned) (S)
+- [ ] MOB-058: PlantInductionsList (S)
+- [ ] MOB-059: PlantInductionDetail (M)
+
+**Tab 7: Profile (1 screen)**
+- [ ] MOB-060: Profile (project switcher, certs, settings) (M)
+
+### Remaining QR Public Flows (6 flows)
+- [ ] PUBLIC-015: `/w/prestart/[qrCode]` - Asset prestart (implemented in R3)
+- [ ] PUBLIC-016: `/w/signin/[code]` - Site sign-in (implemented in R4)
+- [ ] PUBLIC-017: `/w/toolbox/[qrCode]` - Toolbox attendance (implemented in R4)
+- [ ] PUBLIC-018: `/w/asset/[qrCode]` - Asset view (implemented in R3)
+- [ ] PUBLIC-019: `/schedule/confirm/[shareCode]` - Schedule confirmation (implemented in R4)
+- [ ] PUBLIC-020: `/w/upload/[shareCode]` - Document upload (implemented in R5)
+
+### Mobile Hooks (51 hooks)
+- [ ] MOB-070: Create 51 adapter hooks in `hooks/worker/screens/` (L)
+- [ ] MOB-071: Pattern: queries + mutations + enrichment + actions + return (S)
+
+### PWA Configuration
+- [ ] MOB-080: manifest.json (icons, theme, orientation) (S)
+- [ ] MOB-081: Service worker stub (future offline) (S)
+- [ ] MOB-082: iOS/Android install prompts (S)
+
+### Effort Summary
+| Category | S | M | L | Total |
+|----------|---|---|---|-------|
+| Infrastructure | 4 | 3 | 1 | 8 |
+| Tab 1-2 | 2 | 2 | 0 | 4 |
+| Tab 3 | 8 | 0 | 0 | 8 |
+| Tab 4 | 14 | 4 | 1 | 19 |
+| Tab 5 | 4 | 0 | 1 | 5 |
+| Tab 6 | 6 | 3 | 0 | 9 |
+| Tab 7 | 0 | 1 | 0 | 1 |
+| Public | (already counted in R3-R5) | | | 0 |
+| Hooks | 1 | 0 | 1 | 2 |
+| PWA | 3 | 0 | 0 | 3 |
+| **Total** | 42 | 13 | 4 | **59 tasks** |
+
+**Estimated Duration:** 5-6 weeks
 
 ---
 
-## Discoveries & Notes
+## Release Timeline Summary
 
-### R1 Build Notes
-1. **Convex Type Generation**: Convex `_generated` types require `npx convex dev` running. Created stub types for development without live backend.
-2. **Next.js Version**: Currently 15.5.9 (not Next.js 16 yet).
-3. **ConvexProvider**: Handles missing CONVEX_URL - allows demo mode without deployment.
-4. **Git Tag 0.0.3**: R1 Foundation complete.
+| Release | Tasks | Effort | Duration | Cumulative |
+|---------|-------|--------|----------|------------|
+| R3 Quality + Assets | 44 | M | 3-4 weeks | Weeks 1-4 |
+| R4 Site Operations | 53 | L | 4-5 weeks | Weeks 5-9 |
+| R5 Documents + Comms | 41 | M | 3-4 weeks | Weeks 10-13 |
+| R6 Chief AI | 39 | L | 5-6 weeks | Weeks 14-19 |
+| R7 Mobile | 59 | M | 5-6 weeks | Weeks 20-25 |
+| **Total** | **236** | | **20-25 weeks** | |
 
-### R1 Gaps Carried Forward
-1. ~~**Dashboard hardcoded**~~ - RESOLVED: Live stats via `useOrgSafetyStats` hook
-2. **Settings stub**: Empty page at `app/(platform)/orgs/[orgId]/settings/page.tsx` with "coming soon"
-3. **Chief AI placeholder**: In sidebar and dashboard
-4. **No delete mutations**: CRUD is really CRU (no D)
-5. **No photo/file upload**: `_storage` table exists but no upload flow
+---
 
-### Codebase Verified (2026-01-22)
-- No TODOs/FIXMEs in src/ or convex/ implementation code
-- Placeholder patterns found: Chief AI (2), Settings (1), ConvexProvider demo mode
-- All 5 hooks have DEMO_* fallback arrays for offline operation
-- Generated types in convex/_generated/ are stubs for dev without live backend
+## Technical Debt Backlog
 
-### R2 Implementation Notes
-1. **SWMS 13 section types**: title, activity, ppe, hazards, controls, plant, hazmat, permits, training, emergency, legislation, hrcw, supervision (from schema.md)
-2. **Permit 9 states**: draft, submitted, approved, active, suspended, closed, expired, rejected, cancelled
-3. **Induction 6 states**: pending, in_progress, awaiting_review, completed, expired, superseded
-4. **Induction wizard 5 steps**: Profile, Emergency, Content, Tickets, Signature
-5. **Induction content 6 types**: info, video, quiz, acknowledgement, document_upload, photo_capture (from schema.md `steps` array)
-6. **Public routes**: No auth, validate shareCode, rate-limit submissions
-7. **Signature immutability**: swmsSignatures has no update mutation, SHA256 hash for tamper detection
-8. **Incident schema**: Use singular `workerId` (not array), `date` field (not `occurredAt`), witnesses as `{name, contact}[]` objects
-9. **Polymorphic linking**: defects/actionItems link TO incidents via sourceType/sourceId, not embedded arrays
+**Timestamp Format Migration**
+- [ ] DEBT-001: Migrate ~40 timestamp fields from v.number() to v.string() (ISO) (L)
+- [ ] DEBT-002: Update all queries/mutations for ISO timestamps (M)
 
-### Technical Decisions
-- **Timestamp format**: v.number() for milliseconds (R1 pattern) - maintain consistency, defer ISO string migration
-- **Demo data**: All hooks fall back to DEMO_* arrays when CONVEX_URL missing
-- **Status enums**: Use v.union(v.literal(...)) consistently
-- **Share codes**: 12-char nanoid (base64url, ~71-bit entropy)
-- **Auto-numbering**: Per-project sequential (SWMS-001, PERMIT-001, INC-001)
+**Schema Consistency**
+- [ ] DEBT-003: Worker email field: make optional per spec (S)
+- [ ] DEBT-004: Emergency contact field naming: emergencyName → emergencyContactName (S)
+- [ ] DEBT-005: Incident status enum: under_investigation → investigating (S)
 
-### Spec Conflicts Resolved (2026-01-22)
-| Conflict | Resolution | Authoritative Source |
-|----------|------------|---------------------|
-| SWMS section types (13 vs 12) | Use schema.md operational types | _reference/schema.md |
-| Incident `occurredAt` vs `date` | Use `date` field | safety-incidents.md Schema Notes |
-| Incident `involvedWorkerIds[]` vs `workerId` | Use singular `workerId` | safety-incidents.md Schema Notes |
-| Incident linked IDs arrays | Remove, use polymorphic from defects/actions | safety-incidents.md Schema Notes |
-| Induction `content` vs `steps` | Use `steps` array with 6 types | _reference/schema.md |
-| Timestamp ISO vs number | Keep v.number() for R2 consistency | Current R1 pattern |
+**Storage & Files**
+- [ ] DEBT-006: Configure Convex Storage properly (M)
+- [ ] DEBT-007: Implement photo compression (client-side) (M)
+- [ ] DEBT-008: Add virus scanning integration for uploads (M)
 
-### Phase 2 Implementation Notes (2026-01-22)
+**Missing Mutations**
+- [ ] DEBT-009: Add delete mutations across all entities (M)
+- [ ] DEBT-010: Add soft-delete pattern with isDeleted flag (S)
 
-**Files Created (17 API files)**:
-- `convex/certificationTypes.ts` - 6 functions
-- `convex/competencyRecords.ts` - 8 functions
-- `convex/swmsTemplates.ts` - 8 functions
-- `convex/swmsDocuments.ts` - 9 functions
-- `convex/swmsSignatures.ts` - 3 functions (no update - immutable)
-- `convex/swmsAssignments.ts` - 6 functions
-- `convex/swmsPublic.ts` - 3 functions (no auth)
-- `convex/permitTypes.ts` - 6 functions
-- `convex/permitTypeAssignments.ts` - 4 functions
-- `convex/permitInstances.ts` - 17 functions (full 9-state lifecycle)
-- `convex/incidentTemplates.ts` - 8 functions
-- `convex/incidentTemplateAssignments.ts` - 4 functions
-- `convex/incidentReports.ts` - 10 functions
-- `convex/inductionTypes.ts` - 10 functions
-- `convex/inductionInvites.ts` - 8 functions
-- `convex/inductionCompletions.ts` - 12 functions
-- `convex/inductionPublic.ts` - 3 functions (no auth, enriched data)
+**Placeholders to Replace**
+- [ ] DEBT-011: Settings page stub → real settings (M)
+- [ ] DEBT-012: Chief AI placeholder → functional (R6)
+- [ ] DEBT-013: Demo auth → real auth system (L)
 
-**Patterns Established**:
-1. **Index queries**: Use single-field index + `.filter()` for composite conditions (Convex doesn't support chained `.eq()`)
-2. **Optional fields in insert**: Use conditional assignment `if (x !== undefined) data.x = x;` instead of spreading
-3. **Id type access**: Use `as Id<"tableName">` for document field access
-4. **Value type guards**: Use `typeof x === "number"` before numeric comparisons
-5. **Auto-numbering**: Per-project sequential (SWMS-001, PERMIT-001, INC-001)
-6. **Share codes**: 12-char alphanumeric for public access routes
-7. **Signature hashing**: Base64 of `signatureData:timestamp` for tamper detection
-8. **Audit logs**: Append-only arrays with actorId, action, timestamp, optional comment
+---
 
-**Validation Passed**:
-- `npx tsc --noEmit` - 0 errors
-- `npm run lint` - 0 warnings/errors
-- `npm run build` - successful
+## Blockers & Dependencies
 
-### Phase 3 Implementation Notes (2026-01-22)
+### R3 Blockers
+- None (schema exists, ready to build)
 
-**Files Created (9 hook files)**:
-- `src/hooks/use-certifications.ts` - certificationTypes + competencyRecords hooks
-- `src/hooks/use-swms-templates.ts` - SWMS template management hooks
-- `src/hooks/use-swms-documents.ts` - SWMS document lifecycle hooks
-- `src/hooks/use-swms-signatures.ts` - signatures + assignments hooks combined
-- `src/hooks/use-permit-types.ts` - permit type management hooks
-- `src/hooks/use-permit-instances.ts` - permit instance 9-state lifecycle hooks
-- `src/hooks/use-incident-reports.ts` - incident reporting + investigation hooks
-- `src/hooks/use-induction-types.ts` - induction type management hooks
-- `src/hooks/use-induction-completions.ts` - induction completion 6-state lifecycle hooks
+### R4 Blockers
+- R3 complete (checklists needed for toolbox linking)
+- Gantt chart library selection (recommend: react-gantt-chart or custom)
 
-**Patterns Established**:
-1. **Demo data fallback**: DEMO_* arrays filtered by org/project for offline operation
-2. **Convex availability check**: `useConvexAvailable()` + `"skip"` param for conditional queries
-3. **Actions wrapper**: Mutation functions with no-op fallback returning stub IDs
-4. **Derived hooks**: Reuse main hook with client-side filtering (e.g., useWorkerCompetencyRecords)
-5. **Loading state**: `convexAvailable && query === undefined`
-6. **Type exports**: `*Data`, `*WithDetails`, `Create*Input`, `Update*Input` patterns
+### R5 Blockers
+- R4 complete (attendance logs needed for activity)
+- Convex storage configured for file uploads
 
-**Validation Passed**:
-- `npx tsc --noEmit` - 0 errors
-- `npm run lint` - 0 warnings/errors
-- `npm run build` - successful
+### R6 Blockers
+- R5 complete (notifications + documents for Chief context)
+- Claude API access + MCP server setup
+- Streaming response infrastructure
+- Cron job infrastructure (Convex scheduled functions)
 
-### Phase 4 Implementation Notes (2026-01-22)
+### R7 Blockers
+- R6 complete (Chief integration for mobile)
+- Mobile testing devices/simulators
+- PWA testing environment
 
-**Files Created (8 component files + 3 supporting UI files)**:
-- `src/components/safety/signature-canvas.tsx` - SignatureCanvas with undo, clear, PNG export
-- `src/components/safety/swms-sections-viewer.tsx` - Collapsible sections for 13 SWMS section types
-- `src/components/safety/permit-status-badge.tsx` - 9-state permit status badge
-- `src/components/safety/incident-severity-badge.tsx` - 4-level severity badge with icons
-- `src/components/safety/induction-step-indicator.tsx` - 5-step wizard indicator
-- `src/components/safety/acknowledgement-checkboxes.tsx` - SWMS 3 acknowledgements
-- `src/components/safety/content-block-renderer.tsx` - 6 induction block types
-- `src/components/safety/cert-upload-field.tsx` - Certification upload with validation
-- `src/components/safety/index.ts` - Barrel exports
-- `src/components/ui/checkbox.tsx` - ShadCN checkbox component
-- `src/components/ui/collapsible.tsx` - ShadCN collapsible component
-- `src/components/ui/progress.tsx` - ShadCN progress component
+---
 
-**Patterns Established**:
-1. Safety components in `src/components/safety/` directory
-2. Config-driven badges using STATUS_CONFIG/PRIORITY_CONFIG patterns
-3. Touch-optimized: 44px min touch targets, canvas touch support
-4. Hook pattern for state management: useInductionSteps, useAcknowledgements, useCertificationUploads
-5. Base64 data URLs for signature/photo storage (not Next.js Image for dynamic user content)
-6. Validation helpers exported alongside components
+## Success Metrics
 
-**Constants Added to `src/lib/constants.ts`**:
-- SWMS_SECTION_TYPES (13 types) + SWMS_SECTION_LABELS
-- PERMIT_STATUSES (9 states)
-- INCIDENT_SEVERITIES (4 levels) + INCIDENT_SEVERITY_CONFIG
-- INDUCTION_STEPS (5 steps) + INDUCTION_STEP_LABELS
-- INDUCTION_BLOCK_TYPES (6 types)
+### R3 Quality + Assets
+- [ ] Checklist conductor supports 16 field types
+- [ ] Defect → Action linking works
+- [ ] Asset prestart creates defects on fail
+- [ ] Photo upload working end-to-end
 
-**CSS Variables Added to `src/app/globals.css`**:
-- --color-status-suspended-*
-- --color-status-under-investigation-*
-- --color-status-pending-review-*
-- --color-status-awaiting-review-*
-- --color-status-superseded-*
+### R4 Site Operations
+- [ ] Gantt chart renders with phases/tasks/dependencies
+- [ ] QR sign-in works (worker/visitor/delivery)
+- [ ] Toolbox attendance via QR captures signatures
+- [ ] Schedule confirmation updates task status
 
-**Validation Passed**:
-- `npx tsc --noEmit` - 0 errors
-- `npm run lint` - 0 errors (4 img warnings for base64 content, acceptable)
-- `npm run build` - successful
+### R5 Documents + Communications
+- [ ] File upload stores in Convex storage (mediaFiles)
+- [ ] Document metadata search works (title/tags)
+- [ ] PDF annotation saves/loads
+- [ ] Notification bell shows unread count
+- [ ] Message delivery tracking works
+- [ ] Chief can read files directly via MCP tools
 
-### Phase 5 Implementation Notes (2026-01-22)
+### R6 Chief AI
+- [ ] Morning brief generates automatically at 6am
+- [ ] Chief can answer "show me overdue defects"
+- [ ] Chief can assign defects with undo
+- [ ] Trust progression tracks approval rate
 
-**Pages Created**:
-- `src/app/(platform)/orgs/[orgId]/swms-templates/page.tsx` - SWMS templates list
-- `src/app/(platform)/orgs/[orgId]/projects/[projectId]/swms/page.tsx` - SWMS documents list
-- `src/app/(platform)/orgs/[orgId]/permit-types/page.tsx` - Permit types list
-- `src/app/(platform)/orgs/[orgId]/projects/[projectId]/permits/page.tsx` - Permit instances list
-- `src/app/(platform)/orgs/[orgId]/projects/[projectId]/incidents/page.tsx` - Incident reports list
-- `src/app/(platform)/orgs/[orgId]/induction-types/page.tsx` - Induction types list
-- `src/app/(platform)/orgs/[orgId]/projects/[projectId]/inductions/page.tsx` - Project inductions list
-- `src/app/(platform)/orgs/[orgId]/certifications/page.tsx` - Certifications list
-- `src/app/(platform)/orgs/[orgId]/incident-templates/page.tsx` - Incident templates list
-- `src/app/(platform)/orgs/[orgId]/safety/page.tsx` - Safety overview page
+### R7 Mobile
+- [ ] 51 screens navigable
+- [ ] TaskHub aggregates from all modules
+- [ ] Prestart pass/fail creates correct records
+- [ ] SWMS sign captures all acknowledgments
 
-**Navigation Updates**:
-- `src/components/layout/sidebar.tsx` - Added Safety navigation section with links to SWMS, Permits, Incidents, Inductions
-- `src/components/layout/icon-rail.tsx` - Added Shield icon for Safety section
-- `src/app/(platform)/orgs/[orgId]/projects/[projectId]/page.tsx` - Added Safety Management section with links to project-level safety modules
+---
 
-**TypeScript Type Fixes**:
-- Fixed build errors in hooks by changing interface extends to type intersections:
-  - `src/hooks/use-incident-reports.ts`
-  - `src/hooks/use-induction-completions.ts`
-  - `src/hooks/use-induction-types.ts`
-  - `src/hooks/use-permit-instances.ts`
-  - `src/hooks/use-swms-documents.ts`
-- Pattern: Changed `interface X extends Y` to `type X = Y & { ... }` for proper type compatibility with Convex generated types
+## Version History
 
-**Validation Passed**:
-- `npx tsc --noEmit` - 0 errors
-- `npm run lint` - 0 warnings/errors
-- `npm run build` - successful
-
-### Phase 6 Implementation Notes (2026-01-22)
-
-**Files Created**:
-- `src/app/(public)/layout.tsx` - Public route layout (ConvexProvider, no auth)
-- `src/app/(public)/w/swms/[shareCode]/page.tsx` - SWMS public signing page
-- `src/app/(public)/w/induct/[shareCode]/page.tsx` - Induction wizard page
-- `src/hooks/use-swms-public.ts` - Hook for swmsPublic API (getByShareCode, signExternal, getSignatureCount)
-- `src/hooks/use-induction-public.ts` - Hook for inductionPublic API (getByShareCode, submitWizard, getCompletionStatus)
-
-**Key Implementation Details**:
-1. **Public routes under `/w/`**: No auth required, shareCode validation in Convex backend
-2. **Reused existing components**: SignatureCanvas, SWMSSectionsViewer, AcknowledgementCheckboxes, InductionStepIndicator, ContentBlockRenderer, CertUploadField
-3. **Demo data fallback**: Hooks fall back to DEMO_* arrays when CONVEX_URL missing (offline development)
-4. **Type conversion**: Used `unknown` intermediate cast for InductionStep → ContentBlock due to schema flexibility
-5. **Server restart required**: New route groups require dev server restart to be detected
-
-**SWMS Public Signing Flow**:
-- Display SWMS document header + sections (collapsible)
-- Worker enters name, optional company
-- 3 acknowledgement checkboxes (hazards, controls, PPE)
-- SignatureCanvas with undo/clear
-- Submit creates external signature via swmsPublic.signExternal
-
-**Induction Public Wizard Flow**:
-- 5-step wizard: Profile → Emergency Contact → Content → Tickets → Signature
-- Profile: fullName (req), email (req), phone, trade, employer
-- Emergency: name (req), phone (req), relationship (select)
-- Content: Uses ContentBlockRenderer for induction blocks
-- Tickets: Uses CertUploadField for required certifications
-- Signature: Declaration + SignatureCanvas
-- Submit creates completion via inductionPublic.submitWizard (status: awaiting_review)
-
-**Validation Passed**:
-- `npx tsc --noEmit` - 0 errors
-- `npm run lint` - 0 errors (4 img warnings for base64 content, acceptable)
-- `npm run build` - successful
-- Chrome E2E tested both flows with demo data
-
-### Post-Phase 6 Implementation Notes (2026-01-22)
-
-**Incident Form (PAGE-018)**:
-- Created `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/incidents/new/page.tsx`
-- Created `/src/components/ui/textarea.tsx` (ShadCN textarea component)
-- Multi-step wizard: description → details → photos → review
-- Conditional injury details for injury type incidents
-- Dynamic witness management (add/remove witnesses)
-- Photo placeholder (storage not configured)
-
-**Incident Detail View (PAGE-019)**:
-- Created `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/incidents/[incidentId]/page.tsx`
-- Shows incident overview with severity and status
-- Investigation panel: assign investigator, add notes, root cause, corrective actions
-- Lifecycle actions: assign investigator, update investigation, close, reopen
-- Sidebar with people involved, witnesses, timeline
-
-**Safety Stats Card (PAGE-007 partial)**:
-- Created `/src/components/safety/safety-modules-card.tsx` - client component for project dashboard
-- Integrated into project detail page - shows live counts for SWMS (approved), Permits (active), Incidents (open)
-- Highlights incidents card if there are open incidents
-- Org dashboard still uses hardcoded stats (deferred)
-
-**Patterns Used**:
-1. **Multi-step form wizard**: useState for step tracking, conditional rendering per step, "Continue"/"Back" navigation
-2. **Detail page layout**: Two-column responsive (main content + sidebar), Card-based sections
-3. **Investigation panel pattern**: Collapsible form sections, textarea for notes, modal dialogs for actions
-4. **Dynamic list management**: Add/remove items with array state, map with index keys
-
-### Post-Phase 5 Additional Pages (2026-01-22)
-
-**Pages Created**:
-- `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/swms/[documentId]/page.tsx` - SWMS document detail view with:
-  - Document overview (status, dates, created by)
-  - SWMS sections viewer (collapsible)
-  - Signatures list with internal/external display
-  - Assignments tracking (acknowledged/pending)
-  - Timeline sidebar
-  - Lifecycle actions (submit, approve, return to draft, archive)
-  - Share link for approved documents
-
-- `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/swms/[documentId]/sign/page.tsx` - Internal SWMS signing with:
-  - Document sections display
-  - 3 acknowledgement checkboxes
-  - Signature canvas capture
-  - Already-signed detection
-  - Success state
-
-- `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/permits/new/page.tsx` - Permit application wizard:
-  - 4-step wizard (Type, Details, Fields, Review)
-  - Dynamic field rendering based on permit type
-  - Support for all field types (text, number, select, multiselect, yesno, checkbox, date)
-  - Validation per step
-  - Creates draft permit
-
-- `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/permits/[permitId]/page.tsx` - Permit detail view with:
-  - Permit overview and work description
-  - Dynamic form data display
-  - 9-state lifecycle actions (submit, approve, reject, activate, suspend, resume, close, cancel)
-  - Rejection/suspension reason forms
-  - Validity period display
-  - Timeline sidebar
-
-**Patterns Used**:
-1. Multi-step wizard: useState for step tracking, conditional validation per step, skip steps dynamically
-2. Dynamic field rendering: switch statement by field type, multiselect with checkboxes
-3. Lifecycle transitions: getPermitTransitions helper returns valid target states, conditional action buttons
-
-### SWMS Template Editor Implementation Notes (2026-01-22)
-
-**Files Created**:
-- `src/components/safety/swms-section-editor.tsx` - Full section editor with:
-  - 13 section type editors (title, activity, ppe, hazards, controls, plant, hazmat, permits, training, emergency, legislation, hrcw, supervision)
-  - Add/remove sections, reorder with up/down buttons
-  - Collapsible section editing
-  - Type-specific content editors (array items, text fields, nested objects)
-  - `getRecommendedSections()` helper for quick template creation
-  - `useSWMSSections()` hook for state management
-- `src/app/(platform)/orgs/[orgId]/swms-templates/new/page.tsx` - New template wizard:
-  - 3-step wizard: Details → Sections → Review
-  - Step validation and navigation
-  - "Add Recommended Sections" quick action
-  - Creates template as draft
-- `src/app/(platform)/orgs/[orgId]/swms-templates/[templateId]/page.tsx` - Template detail/edit:
-  - View mode: Overview, sections viewer, version history sidebar
-  - Edit mode: Edit name/description, section editor (draft templates only)
-  - Actions: Edit, Clone, Publish, Archive
-  - Version history display with navigation
-
-**Hook Updates**:
-- `src/hooks/use-swms-templates.ts` - Added `SWMSTemplateVersionHistoryEntry` type export
-
-**Patterns Established**:
-1. Section editor uses type-specific content structures matching schema
-2. Published templates are immutable - must clone to edit
-3. Draft templates can be edited in-place
-4. Section reordering maintains sequential order values
-5. Multi-step wizard with validation per step (reused from permits pattern)
-
-### Post-R2 Additional Implementation (2026-01-22)
-
-**New Pages Created**:
-- `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/swms/new/page.tsx` - SWMS document creation:
-  - 4-step wizard: Source → Details → Sections → Review
-  - Can create from template (copies sections) or from scratch
-  - Uses SWMSSectionEditor for section management
-
-- `/src/app/(platform)/orgs/[orgId]/induction-types/new/page.tsx` - Induction type creation:
-  - 4-step wizard: Details → Steps → Requirements → Review
-  - Content step editor with 6 block types (info, video, quiz, acknowledgement, document_upload, photo_capture)
-  - Certification requirements multi-select
-  - Scope selection (company, site, task, plant)
-
-- `/src/app/(platform)/orgs/[orgId]/permit-types/new/page.tsx` - Permit type creation:
-  - 3-step wizard: Details → Fields → Review
-  - Dynamic field editor supporting 8 field types (text, textarea, number, select, multiselect, date, yesno, checkbox)
-  - Auto-generates code from name
-  - Risk level selector (low/medium/high)
-
-- `/src/app/(platform)/orgs/[orgId]/incident-templates/new/page.tsx` - Incident template creation:
-  - Simple form with name, description, incident type
-  - 5 incident type options with icons
-
-- `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/inductions/invite/page.tsx` - Induction invite creation:
-  - Induction type selector, optional worker details, expiry period
-  - Success view with copyable share link
-
-**New Hooks Created**:
-- `src/hooks/use-incident-templates.ts` - CRUD for incident templates with demo data
-- `src/hooks/use-induction-invites.ts` - CRUD for induction invites with demo data
-
-**Backend Updates**:
-- `convex/inductionPublic.ts` - Added cert expiry validation in submitWizard (rejects expired certs)
-- `convex/orgs.ts` - Added getSafetyStats query for org-level dashboard stats
-
-**Org Dashboard (PAGE-007 Complete)**:
-- Updated `/src/app/(platform)/orgs/[orgId]/page.tsx` to client component with live stats
-- Stats: active projects, total workers, open incidents, pending permits, inductions awaiting review, SWMS needing signatures
-- Uses `useOrgSafetyStats` hook from `use-orgs.ts`
-- Color-coded stat cards (red for open incidents, amber for pending permits, etc.)
-- Loading skeletons while data fetches
-
-### Deferred to R3+
-- plantInductionCompletions table (needs assets module)
-- checklistTemplateId links in incidents/permits (needs quality module)
-- PDF generation for SWMS/permits/reports
-- Delete mutations across all entities
+- **v3.0** (2026-01-22): Added R3-R7 implementation plan with full task breakdown
+- **v2.0** (2026-01-22): R2 Safety Core complete (tag 0.0.10)
+- **v1.0** (2026-01-XX): Initial R2 plan

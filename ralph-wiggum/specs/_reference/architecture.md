@@ -133,7 +133,7 @@ Tech stack, layers, patterns - reference for implementation, not feature spec.
 - `undo` - reverse changeset (24hr limit, dependency check)
 - `ai.preamble` - update status line (construction terms only)
 - `ai.present` - render ChatKit widgets (result, questions, confirm, sources, intake)
-- `ai.read_document` - analyze documents via OpenAI vision API
+- `ai.read_document` - analyze documents via Claude multimodal (files from Convex storage)
 - `ai.ui_navigate` - suggest navigation
 
 **Subagent Patterns:**

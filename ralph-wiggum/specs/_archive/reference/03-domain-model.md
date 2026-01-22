@@ -1,5 +1,8 @@
 # 03: Domain Model Specification
 
+> **DEPRECATED**: This spec contains outdated references to Pinecone/OpenAI document processing.
+> Current architecture: files stored in Convex, Claude reads directly via multimodal MCP tools.
+
 > Complete business domain model for PRJ Construction rebuild
 > **Version:** 1.0 (2026-01-21)
 > **Status:** Draft
