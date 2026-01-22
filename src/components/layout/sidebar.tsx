@@ -54,12 +54,46 @@ export function Sidebar({ orgId, projectId, onNavigate }: SidebarProps) {
             active={pathname.startsWith(`/orgs/${orgId}/workers`)}
             onClick={handleNavigate}
           />
-          <SidebarLink
-            href={`/orgs/${orgId}/settings`}
-            label="Settings"
-            active={pathname.startsWith(`/orgs/${orgId}/settings`)}
-            onClick={handleNavigate}
-          />
+
+          {/* Safety Section */}
+          <div className="pt-4">
+            <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+              Safety
+            </p>
+            <SidebarLink
+              href={`/orgs/${orgId}/swms-templates`}
+              label="SWMS Templates"
+              active={pathname.startsWith(`/orgs/${orgId}/swms-templates`)}
+              onClick={handleNavigate}
+            />
+            <SidebarLink
+              href={`/orgs/${orgId}/permit-types`}
+              label="Permit Types"
+              active={pathname.startsWith(`/orgs/${orgId}/permit-types`)}
+              onClick={handleNavigate}
+            />
+            <SidebarLink
+              href={`/orgs/${orgId}/induction-types`}
+              label="Induction Types"
+              active={pathname.startsWith(`/orgs/${orgId}/induction-types`)}
+              onClick={handleNavigate}
+            />
+            <SidebarLink
+              href={`/orgs/${orgId}/certifications`}
+              label="Certifications"
+              active={pathname.startsWith(`/orgs/${orgId}/certifications`)}
+              onClick={handleNavigate}
+            />
+          </div>
+
+          <div className="pt-4">
+            <SidebarLink
+              href={`/orgs/${orgId}/settings`}
+              label="Settings"
+              active={pathname.startsWith(`/orgs/${orgId}/settings`)}
+              onClick={handleNavigate}
+            />
+          </div>
         </div>
       </ScrollArea>
 

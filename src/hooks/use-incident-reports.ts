@@ -103,7 +103,7 @@ export interface InjuryDetails {
 
 export type IncidentReportData = DemoIncidentReport;
 
-export interface IncidentReportWithDetails extends DemoIncidentReport {
+export type IncidentReportWithDetails = DemoIncidentReport & {
   reporter: {
     _id: string;
     fullName: string;
@@ -117,7 +117,7 @@ export interface IncidentReportWithDetails extends DemoIncidentReport {
     _id: string;
     fullName: string;
   } | null;
-}
+};
 
 export interface IncidentStats {
   total: number;

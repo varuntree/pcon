@@ -166,14 +166,14 @@ export interface InductionStep {
 
 export type InductionTypeData = DemoInductionType;
 
-export interface InductionTypeWithCertifications extends DemoInductionType {
+export type InductionTypeWithCertifications = DemoInductionType & {
   requiredCertifications: Array<{
     _id: string;
     name: string;
     code: string;
     category: string;
   }>;
-}
+};
 
 // Input types
 export interface CreateInductionTypeInput {

@@ -111,11 +111,11 @@ export type SWMSDocumentStatus =
 
 export type SWMSDocumentData = DemoSWMSDocument;
 
-export interface SWMSDocumentWithStats extends DemoSWMSDocument {
+export type SWMSDocumentWithStats = DemoSWMSDocument & {
   signatureCount: number;
   assignmentCount: number;
   acknowledgedCount: number;
-}
+};
 
 // Input types
 export interface CreateSWMSDocumentInput {

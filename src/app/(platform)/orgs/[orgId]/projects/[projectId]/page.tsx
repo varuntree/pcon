@@ -1,4 +1,5 @@
-import { Users, Package, AlertCircle, Clock } from "lucide-react";
+import Link from "next/link";
+import { Users, Package, AlertCircle, Clock, FileText, Shield, AlertTriangle, GraduationCap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -24,12 +25,19 @@ const stats = [
   { label: "Days Remaining", value: "151", icon: Clock },
 ];
 
+const safetyModules = [
+  { label: "SWMS", href: "swms", icon: FileText, count: "—" },
+  { label: "Permits", href: "permits", icon: Shield, count: "—" },
+  { label: "Incidents", href: "incidents", icon: AlertTriangle, count: "—" },
+  { label: "Inductions", href: "inductions", icon: GraduationCap, count: "—" },
+];
+
 export default async function ProjectDetailPage({
   params,
 }: {
   params: Promise<{ orgId: string; projectId: string }>;
 }) {
-  const { projectId: _projectId } = await params;
+  const { orgId, projectId } = await params;
   const project = demoProject;
 
   return (
@@ -60,6 +68,34 @@ export default async function ProjectDetailPage({
           </Card>
         ))}
       </div>
+
+      {/* Safety Modules */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Safety Management</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {safetyModules.map((module) => (
+              <Link
+                key={module.href}
+                href={`/orgs/${orgId}/projects/${projectId}/${module.href}`}
+                className="flex items-center gap-3 rounded-lg border border-[var(--color-border)] p-4 transition-colors hover:border-[var(--color-accent)] hover:bg-gray-50"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-accent)]/10">
+                  <module.icon className="h-5 w-5 text-[var(--color-accent)]" />
+                </div>
+                <div>
+                  <p className="font-medium">{module.label}</p>
+                  <p className="text-sm text-[var(--color-text-muted)]">
+                    {module.count} items
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Project Tabs */}
       <Tabs defaultValue="overview" className="space-y-4">

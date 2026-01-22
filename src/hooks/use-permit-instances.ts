@@ -98,7 +98,7 @@ export type PermitStatus =
 
 export type PermitInstanceData = DemoPermitInstance;
 
-export interface PermitInstanceWithDetails extends DemoPermitInstance {
+export type PermitInstanceWithDetails = DemoPermitInstance & {
   permitType: {
     _id: string;
     name: string;
@@ -114,7 +114,7 @@ export interface PermitInstanceWithDetails extends DemoPermitInstance {
     _id: string;
     fullName: string;
   } | null;
-}
+};
 
 // Input types
 export interface CreatePermitInstanceInput {

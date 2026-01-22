@@ -8,6 +8,7 @@ import {
   Users,
   Settings,
   Menu,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,7 @@ const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/" },
   { icon: FolderKanban, label: "Projects", href: "/projects" },
   { icon: Users, label: "Workers", href: "/workers" },
+  { icon: Shield, label: "Safety", href: "/safety" },
   { icon: Settings, label: "Settings", href: "/settings" },
 ];
 

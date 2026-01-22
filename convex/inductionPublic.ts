@@ -176,7 +176,7 @@ export const submitWizard = mutation({
       orgId,
       projectId,
       inductionTypeId,
-      inviteId: invite._id,
+      inviteId: invite!._id as Id<"inductionInvites">,
       status: "awaiting_review",
       profile: args.profile,
       emergencyContact: args.emergencyContact,

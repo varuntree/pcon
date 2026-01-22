@@ -176,7 +176,7 @@ export interface AuditLogEntry {
 
 export type InductionCompletionData = DemoInductionCompletion;
 
-export interface InductionCompletionWithDetails extends DemoInductionCompletion {
+export type InductionCompletionWithDetails = DemoInductionCompletion & {
   inductionType: {
     _id: string;
     name: string;
@@ -191,7 +191,7 @@ export interface InductionCompletionWithDetails extends DemoInductionCompletion 
     _id: string;
     fullName: string;
   } | null;
-}
+};
 
 // Input types
 export interface CreateInductionCompletionInput {
