@@ -160,6 +160,21 @@ export const submitWizard = mutation({
       throwValidation("Signature data cannot be empty");
     }
 
+    // Validate certification expiry dates are in the future
+    if (args.certificationUploads && args.certificationUploads.length > 0) {
+      const currentTime = now();
+      for (const cert of args.certificationUploads) {
+        if (cert.expiryDate !== undefined && cert.expiryDate < currentTime) {
+          // Get cert type name for better error message
+          const certType = await ctx.db.get(cert.certificationTypeId);
+          const certName = certType?.name ?? "Unknown certification";
+          throwValidation(
+            `Certification "${certName}" has already expired. Please provide a valid, non-expired certificate.`
+          );
+        }
+      }
+    }
+
     // Create completion record
     const orgId = invite.orgId as Id<"orgs">;
     const projectId = invite.projectId as Id<"projects">;

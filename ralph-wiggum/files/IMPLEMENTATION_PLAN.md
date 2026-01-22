@@ -34,9 +34,9 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 - `src/lib/`: constants.ts (STATUS_CONFIG, PRIORITY_CONFIG), utils.ts (cn, formatDate, formatDateTime, formatRelativeTime)
 
 **Known Gaps from R1** (carried forward):
-1. Dashboard hardcoded stats at `app/(platform)/orgs/[orgId]/page.tsx:6-10`
+1. ~~Dashboard hardcoded stats~~ - RESOLVED (live stats via useOrgSafetyStats)
 2. Settings stub at `app/(platform)/orgs/[orgId]/settings/page.tsx:27`
-3. Chief AI placeholder in sidebar:66 and dashboard:44
+3. Chief AI placeholder in sidebar and dashboard
 4. No delete mutations (CRU not CRUD)
 5. No photo/file upload flow (`_storage` exists but unused)
 
@@ -285,7 +285,7 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 ### Phase 5: Core Pages [Effort: L] ✅ COMPLETE (tag 0.0.9)
 
 **Dashboard Enhancements**
-- [~] **PAGE-007**: Update dashboard with safety stats (pending SWMS, expiring permits, open incidents) - PARTIAL (project dashboard has live stats via `safety-modules-card.tsx`, org dashboard still hardcoded)
+- [x] **PAGE-007**: Update dashboard with safety stats (pending SWMS, expiring permits, open incidents) ✅ Complete - both project dashboard (via `safety-modules-card.tsx`) and org dashboard (via `useOrgSafetyStats` hook)
 
 **SWMS Module**
 - [x] **PAGE-008**: SWMS templates list (`/orgs/[orgId]/swms-templates`) ✅
@@ -500,9 +500,9 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 4. **Git Tag 0.0.3**: R1 Foundation complete.
 
 ### R1 Gaps Carried Forward
-1. **Dashboard hardcoded**: Stats at `app/(platform)/orgs/[orgId]/page.tsx:6-10` are static
+1. ~~**Dashboard hardcoded**~~ - RESOLVED: Live stats via `useOrgSafetyStats` hook
 2. **Settings stub**: Empty page at `app/(platform)/orgs/[orgId]/settings/page.tsx` with "coming soon"
-3. **Chief AI placeholder**: In sidebar (line 66) and dashboard (line 44)
+3. **Chief AI placeholder**: In sidebar and dashboard
 4. **No delete mutations**: CRUD is really CRU (no D)
 5. **No photo/file upload**: `_storage` table exists but no upload flow
 
@@ -814,6 +814,49 @@ All 8 phases verified complete via codebase audit (2026-01-22):
 3. Draft templates can be edited in-place
 4. Section reordering maintains sequential order values
 5. Multi-step wizard with validation per step (reused from permits pattern)
+
+### Post-R2 Additional Implementation (2026-01-22)
+
+**New Pages Created**:
+- `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/swms/new/page.tsx` - SWMS document creation:
+  - 4-step wizard: Source → Details → Sections → Review
+  - Can create from template (copies sections) or from scratch
+  - Uses SWMSSectionEditor for section management
+
+- `/src/app/(platform)/orgs/[orgId]/induction-types/new/page.tsx` - Induction type creation:
+  - 4-step wizard: Details → Steps → Requirements → Review
+  - Content step editor with 6 block types (info, video, quiz, acknowledgement, document_upload, photo_capture)
+  - Certification requirements multi-select
+  - Scope selection (company, site, task, plant)
+
+- `/src/app/(platform)/orgs/[orgId]/permit-types/new/page.tsx` - Permit type creation:
+  - 3-step wizard: Details → Fields → Review
+  - Dynamic field editor supporting 8 field types (text, textarea, number, select, multiselect, date, yesno, checkbox)
+  - Auto-generates code from name
+  - Risk level selector (low/medium/high)
+
+- `/src/app/(platform)/orgs/[orgId]/incident-templates/new/page.tsx` - Incident template creation:
+  - Simple form with name, description, incident type
+  - 5 incident type options with icons
+
+- `/src/app/(platform)/orgs/[orgId]/projects/[projectId]/inductions/invite/page.tsx` - Induction invite creation:
+  - Induction type selector, optional worker details, expiry period
+  - Success view with copyable share link
+
+**New Hooks Created**:
+- `src/hooks/use-incident-templates.ts` - CRUD for incident templates with demo data
+- `src/hooks/use-induction-invites.ts` - CRUD for induction invites with demo data
+
+**Backend Updates**:
+- `convex/inductionPublic.ts` - Added cert expiry validation in submitWizard (rejects expired certs)
+- `convex/orgs.ts` - Added getSafetyStats query for org-level dashboard stats
+
+**Org Dashboard (PAGE-007 Complete)**:
+- Updated `/src/app/(platform)/orgs/[orgId]/page.tsx` to client component with live stats
+- Stats: active projects, total workers, open incidents, pending permits, inductions awaiting review, SWMS needing signatures
+- Uses `useOrgSafetyStats` hook from `use-orgs.ts`
+- Color-coded stat cards (red for open incidents, amber for pending permits, etc.)
+- Loading skeletons while data fetches
 
 ### Deferred to R3+
 - plantInductionCompletions table (needs assets module)

@@ -118,3 +118,40 @@ export function useOrgsByKind(kind: OrgKind) {
 
   return { data: filtered, isLoading };
 }
+
+export interface OrgSafetyStats {
+  activeProjects: number;
+  totalWorkers: number;
+  openIncidents: number;
+  pendingPermits: number;
+  awaitingReview: number;
+  swmsNeedingSignatures: number;
+}
+
+const DEMO_SAFETY_STATS: OrgSafetyStats = {
+  activeProjects: 2,
+  totalWorkers: 15,
+  openIncidents: 1,
+  pendingPermits: 3,
+  awaitingReview: 2,
+  swmsNeedingSignatures: 4,
+};
+
+export function useOrgSafetyStats(orgId: Id<"orgs"> | string): {
+  data: OrgSafetyStats | null;
+  isLoading: boolean;
+} {
+  const convexAvailable = useConvexAvailable();
+
+  const statsQuery = useQuery(
+    api.orgs.getSafetyStats,
+    convexAvailable ? { id: orgId as Id<"orgs"> } : "skip"
+  );
+
+  const data: OrgSafetyStats | null = convexAvailable
+    ? (statsQuery ?? null)
+    : DEMO_SAFETY_STATS;
+  const isLoading = convexAvailable && statsQuery === undefined;
+
+  return { data, isLoading };
+}
