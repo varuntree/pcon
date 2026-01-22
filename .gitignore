@@ -34,5 +34,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Convex
-convex/_generated
+# Convex - will be overwritten by npx convex dev
+# Keep _generated stub files for TypeScript development
+# convex/_generated
