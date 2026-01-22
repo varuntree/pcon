@@ -1316,4 +1316,29 @@ export default defineSchema({
     .index("by_project_date", ["projectId", "performedAt"])
     .index("by_asset_status", ["assetId", "passed"])
     .index("by_performer", ["performedByWorkerId"]),
+
+  // Plant Induction Completions - Worker qualifications for specific assets/types
+  plantInductionCompletions: defineTable({
+    workerId: v.id("workers"),
+    // Either asset-specific or type-wide
+    assetId: v.optional(v.id("assets")), // Specific asset
+    assetTypeId: v.optional(v.id("assetRegisters")), // Asset type (register)
+    inductionTypeId: v.optional(v.id("checklistTemplates")), // Linked induction template
+    // Completion details
+    completedAt: v.number(),
+    expiresAt: v.optional(v.number()),
+    certificateMediaFileId: v.optional(v.id("_storage")),
+    // Metadata
+    verifiedBy: v.optional(v.id("workers")),
+    notes: v.optional(v.string()),
+    metadata: v.optional(v.any()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_worker", ["workerId"])
+    .index("by_asset", ["assetId"])
+    .index("by_asset_type", ["assetTypeId"])
+    .index("by_worker_asset", ["workerId", "assetId"])
+    .index("by_worker_type", ["workerId", "assetTypeId"])
+    .index("by_expiry", ["expiresAt"]),
 });

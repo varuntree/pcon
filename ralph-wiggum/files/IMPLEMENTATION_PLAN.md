@@ -26,30 +26,30 @@
 **Depends on:** R2 Complete (tag 0.0.10)
 
 ### Schema Changes (0 new tables, minor updates)
-- [ ] Add `plantInductionCompletions` table (M) - tracks plant-specific induction completions
+- [x] Add `plantInductionCompletions` table (M) - tracks plant-specific induction completions ✓
 - [ ] Link `checklistTemplateId` in permitTypes, incidentTemplates (S)
 
 ### Backend APIs
 
 **Quality Checklists**
-- [ ] `checklistTemplates.ts` - listByOrg, listByProject, listActive, get, create, update, clone, deactivate (M)
-- [ ] `checklistInstances.ts` - listByProject, listByAssignee, listByStatus, get, create, updateResponses, complete, cancel (M)
+- [x] `checklistTemplates.ts` - listByOrg, listByProject, listActive, get, create, update, clone, deactivate (M) ✓
+- [x] `checklistInstances.ts` - listByProject, listByAssignee, listByStatus, get, create, updateResponses, complete, cancel (M) ✓
 
 **Quality Defects**
-- [ ] `defects.ts` - listByProject, listByStatus, listByAssignee, get, create, update, resolve, close, addComment (M)
-- [ ] `defectPhotos.ts` - listByDefect, create, delete, updateMarkup (S)
+- [x] `defects.ts` - listByProject, listByStatus, listByAssignee, get, create, update, resolve, close, addComment (M) ✓
+- [x] `defectPhotos.ts` - listByDefect, create, delete, updateMarkup (S) ✓
 
 **Action Items**
-- [ ] `actionItems.ts` - listByProject, listByAssignee, listByStatus, listBySource, get, create, update, complete, cancel, addComment (M)
+- [x] `actionItems.ts` - listByProject, listByAssignee, listByStatus, listBySource, get, create, update, complete, cancel, addComment (M) ✓
 
 **Asset Management**
-- [ ] `assetRegisters.ts` - listByOrg, listByProject, get, create, update, deactivate (S)
-- [ ] `assets.ts` - listByRegister, listByProject, listByStatus, get, create, update, updateStatus (M)
-- [ ] `assetAllocations.ts` - listByAsset, listByWorker, listActive, get, create, return, cancel (M)
-- [ ] `assetRequests.ts` - listByProject, listByStatus, get, create, approve, reject, cancel (S)
-- [ ] `assetChecklistConfigs.ts` - listByAsset, get, create, update, deactivate (S)
-- [ ] `assetServiceLogs.ts` - listByAsset, get, create (S)
-- [ ] `prestartSubmissions.ts` - listByAsset, listByProject, get, submit, evaluate (M)
+- [x] `assetRegisters.ts` - listByOrg, listByProject, get, create, update, deactivate (S) ✓
+- [x] `assets.ts` - listByRegister, listByProject, listByStatus, get, create, update, updateStatus (M) ✓
+- [x] `assetAllocations.ts` - listByAsset, listByWorker, listActive, get, create, return, cancel (M) ✓
+- [x] `assetRequests.ts` - listByProject, listByStatus, get, create, approve, reject, cancel (S) ✓
+- [x] `assetChecklistConfigs.ts` - listByAsset, get, create, update, deactivate (S) ✓
+- [x] `assetServiceLogs.ts` - listByAsset, get, create (S) ✓
+- [x] `prestartSubmissions.ts` - listByAsset, listByProject, get, submit, evaluate (M) ✓
 
 ### Hooks Layer
 - [x] `use-checklist-templates.ts` (S) ✓
@@ -65,8 +65,8 @@
 ### Pages
 
 **Quality Module**
-- [ ] PAGE-030: Checklist templates list `/orgs/[orgId]/checklist-templates` (M)
-- [ ] PAGE-031: Checklist template editor (16 field types, sections, conditional logic) (L)
+- [x] PAGE-030: Checklist templates list `/orgs/[orgId]/checklist-templates` (M) ✓
+- [x] PAGE-031: Checklist template editor (16 field types, sections, conditional logic) (L) ✓
 - [ ] PAGE-032: Project checklists list `/orgs/[orgId]/projects/[projectId]/checklists` (S)
 - [ ] PAGE-033: Checklist instance conductor (dynamic fields, progress tracking) (L)
 - [ ] PAGE-034: Defects list `/orgs/[orgId]/projects/[projectId]/defects` (S)
@@ -637,6 +637,8 @@
 
 ## Version History
 
+- **v3.3** (2026-01-22): PAGE-030/031 complete w/ checklist section editor component
+- **v3.2** (2026-01-22): R3 Backend APIs complete (12 APIs)
 - **v3.1** (2026-01-22): R3 Hooks layer complete (9 hooks)
 - **v3.0** (2026-01-22): Added R3-R7 implementation plan with full task breakdown
 - **v2.0** (2026-01-22): R2 Safety Core complete (tag 0.0.10)
