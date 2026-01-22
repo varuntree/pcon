@@ -67,8 +67,8 @@
 **Quality Module**
 - [x] PAGE-030: Checklist templates list `/orgs/[orgId]/checklist-templates` (M) ✓
 - [x] PAGE-031: Checklist template editor (16 field types, sections, conditional logic) (L) ✓
-- [ ] PAGE-032: Project checklists list `/orgs/[orgId]/projects/[projectId]/checklists` (S)
-- [ ] PAGE-033: Checklist instance conductor (dynamic fields, progress tracking) (L)
+- [x] PAGE-032: Project checklists list `/orgs/[orgId]/projects/[projectId]/checklists` (S) ✓
+- [x] PAGE-033: Checklist instance conductor (dynamic fields, progress tracking) (L) ✓
 - [ ] PAGE-034: Defects list `/orgs/[orgId]/projects/[projectId]/defects` (S)
 - [ ] PAGE-035: Defect detail view (photos, comments, lifecycle actions) (M)
 - [ ] PAGE-036: Defect creation form (location, photos, markup) (M)
@@ -637,6 +637,7 @@
 
 ## Version History
 
+- **v3.4** (2026-01-22): PAGE-032/033 complete (project checklists list + conductor pages)
 - **v3.3** (2026-01-22): PAGE-030/031 complete w/ checklist section editor component
 - **v3.2** (2026-01-22): R3 Backend APIs complete (12 APIs)
 - **v3.1** (2026-01-22): R3 Hooks layer complete (9 hooks)
