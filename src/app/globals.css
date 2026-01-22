@@ -51,6 +51,16 @@
   --color-status-resolved-text: #166534;
   --color-status-closed-text: #374151;
   --color-status-cancelled-text: #991b1b;
+  --color-status-suspended-bg: #fef3c7;
+  --color-status-suspended-text: #92400e;
+  --color-status-under-investigation-bg: #fef3c7;
+  --color-status-under-investigation-text: #92400e;
+  --color-status-pending-review-bg: #e0e7ff;
+  --color-status-pending-review-text: #3730a3;
+  --color-status-awaiting-review-bg: #e0e7ff;
+  --color-status-awaiting-review-text: #3730a3;
+  --color-status-superseded-bg: #f3f4f6;
+  --color-status-superseded-text: #6b7280;
 
   /* Priority Colors - Backgrounds */
   --color-priority-critical-bg: #fee2e2;

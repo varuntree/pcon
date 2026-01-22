@@ -140,6 +140,31 @@ export const STATUS_CONFIG: Record<
     bgClass: "bg-[var(--color-status-cancelled-bg)]",
     textClass: "text-[var(--color-status-cancelled-text)]",
   },
+  suspended: {
+    label: "Suspended",
+    bgClass: "bg-[var(--color-status-suspended-bg)]",
+    textClass: "text-[var(--color-status-suspended-text)]",
+  },
+  under_investigation: {
+    label: "Under Investigation",
+    bgClass: "bg-[var(--color-status-under-investigation-bg)]",
+    textClass: "text-[var(--color-status-under-investigation-text)]",
+  },
+  pending_review: {
+    label: "Pending Review",
+    bgClass: "bg-[var(--color-status-pending-review-bg)]",
+    textClass: "text-[var(--color-status-pending-review-text)]",
+  },
+  awaiting_review: {
+    label: "Awaiting Review",
+    bgClass: "bg-[var(--color-status-awaiting-review-bg)]",
+    textClass: "text-[var(--color-status-awaiting-review-text)]",
+  },
+  superseded: {
+    label: "Superseded",
+    bgClass: "bg-[var(--color-status-superseded-bg)]",
+    textClass: "text-[var(--color-status-superseded-text)]",
+  },
 };
 
 // Priority Config for UI
@@ -168,6 +193,117 @@ export const PRIORITY_CONFIG: Record<
     textClass: "text-[var(--color-priority-low-text)]",
   },
 };
+
+// SWMS Section Types (13 operational sections)
+export const SWMS_SECTION_TYPES = [
+  "title",
+  "activity",
+  "ppe",
+  "hazards",
+  "controls",
+  "plant",
+  "hazmat",
+  "permits",
+  "training",
+  "emergency",
+  "legislation",
+  "hrcw",
+  "supervision",
+] as const;
+export type SwmsSectionType = (typeof SWMS_SECTION_TYPES)[number];
+
+export const SWMS_SECTION_LABELS: Record<SwmsSectionType, string> = {
+  title: "Project Details",
+  activity: "Scope of Work",
+  ppe: "PPE Requirements",
+  hazards: "Hazards & Risk Assessment",
+  controls: "Control Measures",
+  plant: "Plant & Equipment",
+  hazmat: "Hazardous Materials",
+  permits: "Permits Required",
+  training: "Training Requirements",
+  emergency: "Emergency Procedures",
+  legislation: "Legislation & Standards",
+  hrcw: "High Risk Construction Work",
+  supervision: "Supervision Requirements",
+};
+
+// Permit Statuses (9-state lifecycle)
+export const PERMIT_STATUSES = [
+  "draft",
+  "submitted",
+  "approved",
+  "active",
+  "suspended",
+  "closed",
+  "expired",
+  "rejected",
+  "cancelled",
+] as const;
+export type PermitStatus = (typeof PERMIT_STATUSES)[number];
+
+// Incident Severities
+export const INCIDENT_SEVERITIES = ["low", "medium", "high", "critical"] as const;
+export type IncidentSeverity = (typeof INCIDENT_SEVERITIES)[number];
+
+export const INCIDENT_SEVERITY_CONFIG: Record<
+  IncidentSeverity,
+  { label: string; bgClass: string; textClass: string; icon: string }
+> = {
+  low: {
+    label: "Low",
+    bgClass: "bg-[var(--color-priority-low-bg)]",
+    textClass: "text-[var(--color-priority-low-text)]",
+    icon: "info",
+  },
+  medium: {
+    label: "Medium",
+    bgClass: "bg-[var(--color-priority-medium-bg)]",
+    textClass: "text-[var(--color-priority-medium-text)]",
+    icon: "alert-triangle",
+  },
+  high: {
+    label: "High",
+    bgClass: "bg-[var(--color-priority-high-bg)]",
+    textClass: "text-[var(--color-priority-high-text)]",
+    icon: "alert-circle",
+  },
+  critical: {
+    label: "Critical",
+    bgClass: "bg-[var(--color-priority-critical-bg)]",
+    textClass: "text-[var(--color-priority-critical-text)]",
+    icon: "alert-octagon",
+  },
+};
+
+// Induction Steps (5-step wizard)
+export const INDUCTION_STEPS = [
+  "profile",
+  "emergency",
+  "content",
+  "tickets",
+  "signature",
+] as const;
+export type InductionStep = (typeof INDUCTION_STEPS)[number];
+
+export const INDUCTION_STEP_LABELS: Record<InductionStep, string> = {
+  profile: "Profile",
+  emergency: "Emergency Contact",
+  content: "Content",
+  tickets: "Tickets",
+  signature: "Signature",
+};
+
+// Induction Content Block Types
+export const INDUCTION_BLOCK_TYPES = [
+  "info",
+  "video",
+  "quiz",
+  "acknowledgement",
+  "document_upload",
+  "photo_capture",
+] as const;
+export type InductionBlockType = (typeof INDUCTION_BLOCK_TYPES)[number];
 
 // Org Kind Labels
 export const ORG_KIND_LABELS: Record<OrgKind, string> = {
