@@ -7,6 +7,12 @@
 import { GenericDataModel, GenericDocument, GenericTableInfo } from "convex/server";
 import { GenericId } from "convex/values";
 
+// Export Id type for use in application code
+export type Id<TableName extends keyof DataModel> = GenericId<TableName>;
+
+// Document type helper - gets the document type for a table
+export type Doc<TableName extends keyof DataModel> = DataModel[TableName]["document"];
+
 // Table document types
 export type Org = GenericDocument & {
   name: string;

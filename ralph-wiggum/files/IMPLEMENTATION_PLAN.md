@@ -188,17 +188,17 @@
 
 ### Phase 7: Authentication (Stub)
 
-- [ ] **AUTH-001**: Create `hooks/use-demo-context.ts` - demo user context
-- [ ] **AUTH-002**: Create OrgSelector component
-- [ ] **AUTH-003**: Create ProjectSelector component
-- [ ] **AUTH-004**: Create redirect middleware (/ → /orgs/[firstOrgId])
+- [x] **AUTH-001**: Create `hooks/use-demo-context.ts` - demo user context
+- [x] **AUTH-002**: Create OrgSelector component
+- [x] **AUTH-003**: Create ProjectSelector component
+- [x] **AUTH-004**: Create redirect middleware (/ → /orgs/[firstOrgId])
 
 ### Phase 8: Hooks Layer
 
-- [ ] **HOOK-001**: Create `hooks/use-orgs.ts`
-- [ ] **HOOK-002**: Create `hooks/use-projects.ts`
-- [ ] **HOOK-003**: Create `hooks/use-workers.ts`
-- [ ] **HOOK-004**: Create `hooks/use-trades.ts`
+- [x] **HOOK-001**: Create `hooks/use-orgs.ts`
+- [x] **HOOK-002**: Create `hooks/use-projects.ts`
+- [x] **HOOK-003**: Create `hooks/use-workers.ts`
+- [x] **HOOK-004**: Create `hooks/use-trades.ts`
 
 ---
 
@@ -276,6 +276,10 @@
 
 6. **Git Tag 0.0.1 Created**: Release tag established.
 
+### Build Iteration 2 (2026-01-22)
+
+7. **Convex Demo Mode Pattern**: Hooks use "skip" parameter with `useConvexAvailable()` context to fall back to demo data when CONVEX_URL is not configured. ConvexProvider always creates a client (with placeholder URL if needed) to satisfy hook requirements.
+
 ---
 
 ## Completed Items
@@ -325,3 +329,15 @@
 - PAGE-004: Project dashboard page
 - PAGE-005: Worker list page
 - PAGE-006: Worker detail page (placeholder)
+
+### Phase 7: Authentication (Stub) ✓
+- AUTH-001: hooks/use-demo-context.ts - demo user context
+- AUTH-002: OrgSelector component
+- AUTH-003: ProjectSelector component
+- AUTH-004: Redirect middleware (already working in page.tsx)
+
+### Phase 8: Hooks Layer ✓
+- HOOK-001: hooks/use-orgs.ts - org queries with demo fallback
+- HOOK-002: hooks/use-projects.ts - project queries with demo fallback
+- HOOK-003: hooks/use-workers.ts - worker queries with demo fallback
+- HOOK-004: hooks/use-trades.ts - trade queries with demo fallback
