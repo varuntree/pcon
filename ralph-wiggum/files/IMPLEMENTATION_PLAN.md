@@ -270,6 +270,12 @@
 
 3. **Linting Deprecation**: `next lint` is deprecated. Use ESLint CLI directly (`npx eslint .`) in future workflows.
 
+4. **ConvexProvider Updated**: Now handles missing CONVEX_URL - allows demo mode without deployment.
+
+5. **UI Verified via Chrome E2E**: Dashboard, Projects list, Workers list all working.
+
+6. **Git Tag 0.0.1 Created**: Release tag established.
+
 ---
 
 ## Completed Items
