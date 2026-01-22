@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Viewport & Panel Colors */
+  --color-viewport: #efefeb;
+  --color-panel: #ffffff;
+  --color-text: #212121;
+  --color-text-muted: #6b7280;
+  --color-accent: #f97316;
+  --color-accent-hover: #ea580c;
+
+  /* Border & Divider */
+  --color-border: #e5e7eb;
+  --color-border-hover: #d1d5db;
+
+  /* Status Colors - Backgrounds */
+  --color-status-planning-bg: #dbeafe;
+  --color-status-active-bg: #dcfce7;
+  --color-status-completed-bg: #f3f4f6;
+  --color-status-archived-bg: #f9fafb;
+  --color-status-pending-bg: #fef3c7;
+  --color-status-inactive-bg: #fee2e2;
+  --color-status-draft-bg: #e5e7eb;
+  --color-status-submitted-bg: #dbeafe;
+  --color-status-approved-bg: #dcfce7;
+  --color-status-rejected-bg: #fee2e2;
+  --color-status-expired-bg: #f3e8ff;
+  --color-status-open-bg: #dbeafe;
+  --color-status-in-progress-bg: #fef3c7;
+  --color-status-resolved-bg: #dcfce7;
+  --color-status-closed-bg: #f3f4f6;
+  --color-status-cancelled-bg: #fee2e2;
+
+  /* Status Colors - Text */
+  --color-status-planning-text: #1e40af;
+  --color-status-active-text: #166534;
+  --color-status-completed-text: #374151;
+  --color-status-archived-text: #6b7280;
+  --color-status-pending-text: #92400e;
+  --color-status-inactive-text: #991b1b;
+  --color-status-draft-text: #374151;
+  --color-status-submitted-text: #1e40af;
+  --color-status-approved-text: #166534;
+  --color-status-rejected-text: #991b1b;
+  --color-status-expired-text: #6b21a8;
+  --color-status-open-text: #1e40af;
+  --color-status-in-progress-text: #92400e;
+  --color-status-resolved-text: #166534;
+  --color-status-closed-text: #374151;
+  --color-status-cancelled-text: #991b1b;
+
+  /* Priority Colors - Backgrounds */
+  --color-priority-critical-bg: #fee2e2;
+  --color-priority-high-bg: #ffedd5;
+  --color-priority-medium-bg: #fef3c7;
+  --color-priority-low-bg: #f3f4f6;
+
+  /* Priority Colors - Text */
+  --color-priority-critical-text: #991b1b;
+  --color-priority-high-text: #c2410c;
+  --color-priority-medium-text: #92400e;
+  --color-priority-low-text: #374151;
+
+  /* Notification Colors */
+  --color-success-bg: #dcfce7;
+  --color-success-text: #166534;
+  --color-warning-bg: #fef3c7;
+  --color-warning-text: #92400e;
+  --color-error-bg: #fee2e2;
+  --color-error-text: #991b1b;
+  --color-info-bg: #dbeafe;
+  --color-info-text: #1e40af;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius: 0.5rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-viewport);
+    color: var(--color-text);
+  }
+}
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoom-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-in-from-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-in-from-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes chatkit-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in {
+  animation: fade-in 200ms ease-out;
+}
+
+.animate-zoom-in {
+  animation: zoom-in 200ms ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-from-right 200ms ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-from-left 200ms ease-out;
+}
+
+.animate-shimmer {
+  animation: chatkit-shimmer 2s linear infinite;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 200% 100%;
+}
